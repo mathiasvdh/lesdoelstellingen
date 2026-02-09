@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>De Academie - Filosofen Bordspel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="screen">
+    <div class="setup-container">
+      <h1>De Academie</h1>
+      <p class="subtitle">Een filosofisch bordspel</p>
+      <div class="setup-section">
+        <h2>Kies je startfilosofen en ideeen</h2>
+        <p class="setup-hint">Selecteer een combinatie van kaarten en ideeen (totaal = 5). Klik op kaarten om ze te selecteren, gebruik de knoppen om ideeen te kiezen.</p>
+        <div class="setup-ideas">
+          <h3>Ideeen (<span id="setup-ideas-count">0</span>/5 gekozen)</h3>
+          <div id="setup-idea-selectors" class="idea-selectors"></div>
+        </div>
+        <div class="setup-cards">
+          <h3>Filosofen (<span id="setup-cards-count">0</span> geselecteerd)</h3>
+          <div id="setup-hand" class="card-row"></div>
+        </div>
+        <button id="btn-start-game" class="btn btn-primary" disabled>Start het Spel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen hidden">
+    <!-- TOP BAR -->
+    <header id="top-bar">
+      <div class="bar-section">
+        <span class="label">Ronde</span>
+        <span id="round-display" class="value">1/4</span>
+        <span id="round-name" class="round-name">De Oudheid</span>
+      </div>
+      <div class="bar-section">
+        <span class="label">Beurt</span>
+        <span id="turn-display" class="value">1/8</span>
+      </div>
+      <div class="bar-section">
+        <span class="label">Acties over</span>
+        <span id="cubes-display" class="value">8</span>
+      </div>
+      <div class="bar-section">
+        <span class="label">Deck</span>
+        <span id="deck-count" class="value">0</span>
+      </div>
+      <div class="bar-section score-section">
+        <span class="label">Score</span>
+        <span id="score-display" class="value">0</span>
+      </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div id="main-layout">
+      <!-- LEFT: Resources + Library -->
+      <aside id="left-panel">
+        <div class="panel-box" id="ideas-panel">
+          <h3>Ideeen</h3>
+          <div id="idea-counts" class="idea-grid"></div>
+        </div>
+        <div class="panel-box" id="library-panel">
+          <h3>Bibliotheek</h3>
+          <div id="library-dice" class="dice-row"></div>
+          <button id="btn-reroll" class="btn btn-small" style="display:none">Hergooi</button>
+        </div>
+        <div class="panel-box" id="books-panel">
+          <h3>Boeken</h3>
+          <div id="book-info">
+            <span id="books-on-board">0</span> op bord
+          </div>
+        </div>
+        <div class="panel-box" id="open-cards-panel">
+          <h3>Open Kaarten</h3>
+          <div id="open-cards" class="open-cards-row"></div>
+        </div>
+      </aside>
+
+      <!-- CENTER: Player Board -->
+      <main id="center-board">
+        <div class="board-row" data-row="lezen">
+          <div class="row-header">
+            <span class="row-icon">&#128214;</span>
+            <span class="row-name">LEZEN</span>
+            <span class="row-desc">Kennis vergaren</span>
+            <button class="btn btn-action btn-lezen" data-action="lezen">Lezen</button>
+          </div>
+          <div class="row-slots" id="row-lezen"></div>
+        </div>
+        <div class="board-row" data-row="schrijven">
+          <div class="row-header">
+            <span class="row-icon">&#9997;</span>
+            <span class="row-name">SCHRIJVEN</span>
+            <span class="row-desc">Publiceren</span>
+            <button class="btn btn-action btn-schrijven" data-action="schrijven">Schrijven</button>
+          </div>
+          <div class="row-slots" id="row-schrijven"></div>
+        </div>
+        <div class="board-row" data-row="spreken">
+          <div class="row-header">
+            <span class="row-icon">&#127908;</span>
+            <span class="row-name">SPREKEN</span>
+            <span class="row-desc">Dialoog voeren</span>
+            <button class="btn btn-action btn-spreken" data-action="spreken">Spreken</button>
+          </div>
+          <div class="row-slots" id="row-spreken"></div>
+        </div>
+      </main>
+
+      <!-- RIGHT: Hand -->
+      <aside id="right-panel">
+        <div class="panel-box" id="hand-panel">
+          <h3>Je Hand <span id="hand-count">(0)</span></h3>
+          <div id="hand-cards" class="hand-column"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ACTION BAR (context-sensitive) -->
+    <div id="action-bar" class="hidden">
+      <div id="action-bar-content"></div>
+      <button id="btn-cancel-action" class="btn btn-cancel">Annuleer</button>
+    </div>
+
+    <!-- LOG -->
+    <div id="game-log">
+      <div id="log-entries"></div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="screen hidden">
+    <div class="end-container">
+      <h1>Spel Afgelopen!</h1>
+      <div id="final-score-breakdown"></div>
+      <button id="btn-new-game" class="btn btn-primary">Nieuw Spel</button>
+    </div>
+  </div>
+
+  <!-- MODAL for card details / choices -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <div id="modal-content"></div>
+      <button id="modal-close" class="btn btn-small">Sluiten</button>
+    </div>
+  </div>
+
+  <script src="cards.js"></script>
+  <script src="game.js"></script>
+  <script src="ui.js"></script>
+</body>
+</html>
