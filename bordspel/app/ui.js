@@ -449,24 +449,24 @@ const UI = {
 
     content.innerHTML = `
       <div class="modal-card-detail">
-        <div class="card-name" style="font-size:20px">${card.naam}</div>
-        <div style="color:var(--text-dim)">${this.formatDate(card.geboren)} - ${this.formatDate(card.overleden)}</div>
-        <div style="color:var(--gold-dim);font-style:italic">${card.stroming}</div>
+        <div class="card-name" style="font-size:22px;font-family:Merriweather,serif;color:var(--bg-dark)">${card.naam}</div>
+        <div style="color:var(--text-light);margin-top:2px">${this.formatDate(card.geboren)} - ${this.formatDate(card.overleden)}</div>
+        <div style="color:var(--gold);font-style:italic;margin-top:2px">${card.stroming}</div>
         ${traditieName ? `<div class="modal-traditie"><span class="traditie-badge traditie-${card.traditie}">${traditieName}</span></div>` : ''}
-        <div style="margin:8px 0">${skills}</div>
-        <div style="display:flex;gap:6px;margin:8px 0">${costs || '<span style="color:var(--green)">Gratis</span>'}</div>
-        <div style="margin:4px 0">
+        <div style="margin:10px 0">${skills}</div>
+        <div style="display:flex;gap:6px;margin:8px 0">${costs || '<span style="color:var(--green);font-weight:600">Gratis</span>'}</div>
+        <div style="margin:6px 0;color:var(--text)">
           <strong>VP:</strong> ${card.vp} &nbsp;
           <strong>Boek-capaciteit:</strong> ${card.boek_capaciteit} &nbsp;
           ${card.invloed ? `<strong>Invloed:</strong> ${card.invloed}` : ''}
         </div>
-        <div class="card-power-text" style="margin-top:8px">
+        <div style="margin-top:10px;padding:10px;background:white;border-radius:8px;border:1px solid #ece4d4">
           <span class="power-dot ${card.kracht_type}"></span>
           <strong>${powerLabels[card.kracht_type] || card.kracht_type}:</strong> ${card.kracht}
         </div>
-        ${card.citaat ? `<div style="font-style:italic;color:var(--text-dim);margin-top:8px;border-left:3px solid var(--gold-dim);padding-left:8px">"${card.citaat}"</div>` : ''}
+        ${card.citaat ? `<div style="font-style:italic;color:var(--text-dim);margin-top:10px;border-left:3px solid var(--gold);padding-left:10px">"${card.citaat}"</div>` : ''}
         ${card.books !== undefined ? `
-          <div style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1)">
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #ece4d4">
             <strong>Boeken:</strong> ${card.books}/${card.boek_capaciteit} &nbsp;
             <strong>Referenties:</strong> ${card.tucked || 0} &nbsp;
             <strong>Opgeslagen:</strong> ${card.cached || 0}

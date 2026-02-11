@@ -339,7 +339,8 @@ const Game = {
 
     // --- GAIN IDEAS ---
     const ideaMatch = kracht.match(/pak (\d+)/);
-    if (ideaMatch && kracht.includes('idee')) {
+    const wantsIdeas = ideaMatch && (kracht.includes('idee') || kracht.includes('ideeën') || kracht.includes('en pak'));
+    if (ideaMatch && wantsIdeas) {
       const amount = parseInt(ideaMatch[1]);
       const types = this.parseIdeaTypes(kracht);
 
@@ -348,12 +349,11 @@ const Game = {
           this.player.ideas[types[i]]++;
           this.addLog(`${card.naam}: +1 ${IDEA_NAMES[types[i]]}`, 'gain');
         }
-        // If amount > types found, fill with the first type
         for (let i = types.length; i < amount; i++) {
           this.player.ideas[types[0]]++;
           this.addLog(`${card.naam}: +1 ${IDEA_NAMES[types[0]]}`, 'gain');
         }
-      } else if (kracht.includes('willekeurig') || kracht.includes('bibliotheek')) {
+      } else if (kracht.includes('willekeurig') || kracht.includes('bibliotheek') || kracht.includes('en pak')) {
         for (let i = 0; i < amount; i++) {
           const t = this.randomIdeaType();
           this.player.ideas[t]++;
@@ -381,8 +381,23 @@ const Game = {
       const bookMatch = kracht.match(/leg (\d+) boek/);
       if (bookMatch) {
         const n = parseInt(bookMatch[1]);
-        for (let i = 0; i < n; i++) {
-          this.autoPlaceBook(card);
+        if (kracht.includes('op elke filosoof')) {
+          // Place books on each philosopher in the relevant scope
+          const row = this.findCardRow(card);
+          const targets = row ? this.player.board[row] : this.getAllBoardCards();
+          for (const target of targets) {
+            for (let i = 0; i < n; i++) {
+              if (target.books < target.boek_capaciteit) {
+                target.books++;
+                this.player.booksOnBoard++;
+                this.addLog(`${card.naam}: +1 boek op ${target.naam}`, 'gain');
+              }
+            }
+          }
+        } else {
+          for (let i = 0; i < n; i++) {
+            this.autoPlaceBook(card);
+          }
         }
       }
     }
@@ -478,6 +493,13 @@ const Game = {
       const card = this.deck.pop();
       this.player.hand.push(card);
       return card;
+    }
+    return null;
+  },
+
+  findCardRow(card) {
+    for (const row of ['lezen', 'schrijven', 'spreken']) {
+      if (this.player.board[row].some(c => c.id === card.id)) return row;
     }
     return null;
   },
@@ -642,13 +664,7 @@ const Game = {
     let gameEndVP = 0;
     for (const card of this.getAllBoardCards()) {
       if (card.kracht_type === 'geel') {
-        // Count based on power text
-        const kracht = card.kracht.toLowerCase();
-        const match = kracht.match(/(\d+) vp per/);
-        if (match) {
-          // simplified
-          gameEndVP += parseInt(match[1]);
-        }
+        gameEndVP += this.scoreGeelPower(card);
       }
     }
 
@@ -668,6 +684,43 @@ const Game = {
     let total = 0;
     for (const t of IDEA_TYPES) total += this.player.ideas[t];
     return total;
+  },
+
+  scoreGeelPower(card) {
+    const k = card.kracht.toLowerCase();
+    const allCards = this.getAllBoardCards();
+
+    // "1 VP per filosoof in de rij Lezen/Schrijven/Spreken"
+    if (k.includes('rij lezen')) return this.player.board.lezen.length;
+    if (k.includes('rij schrijven')) return this.player.board.schrijven.length;
+    if (k.includes('rij spreken')) return this.player.board.spreken.length;
+
+    // "1 VP per 2 boeken op je bord"
+    if (k.includes('per 2 boeken')) return Math.floor(this.player.booksOnBoard / 2);
+
+    // "1 VP per filosoof met dezelfde traditie als deze kaart"
+    if (k.includes('dezelfde traditie als deze')) return allCards.filter(c => c.traditie === card.traditie).length;
+
+    // "1 VP per 3 ideeën in je bezit"
+    if (k.includes('per 3 idee')) return Math.floor(this.getTotalIdeas() / 3);
+
+    // "2 VP als je minstens 1 filosoof in elke rij hebt"
+    if (k.includes('elke rij')) {
+      const hasAll = this.player.board.lezen.length > 0 && this.player.board.schrijven.length > 0 && this.player.board.spreken.length > 0;
+      return hasAll ? 2 : 0;
+    }
+
+    // "1 VP per 2 referenties op je bord"
+    if (k.includes('referenties')) return Math.floor(this.player.tuckedCards / 2);
+
+    // "2 VP als je 4+ filosofen van dezelfde traditie hebt"
+    if (k.includes('4+ filosofen van dezelfde traditie')) {
+      const counts = {};
+      for (const c of allCards) counts[c.traditie] = (counts[c.traditie] || 0) + 1;
+      return Object.values(counts).some(v => v >= 4) ? 2 : 0;
+    }
+
+    return 0;
   },
 
   // ==========================================================
