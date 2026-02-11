@@ -1,3 +1,7 @@
+/* ============================================================
+   DE ACADEMIE - Stylesheet v2.0
+   ============================================================ */
+
 /* === RESET & BASE === */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -27,6 +31,15 @@
   --bruin: #8B6914;
   --roze: #d63384;
   --wit: #cccccc;
+  --groenblauw: #0d9488;
+  --geel: #eab308;
+
+  /* Traditie colors */
+  --trad-contemplatief: #7c3aed;
+  --trad-empirisch: #2563eb;
+  --trad-dialectisch: #dc2626;
+  --trad-normatief: #059669;
+  --trad-eclectisch: #eab308;
 
   --radius: 8px;
   --radius-lg: 12px;
@@ -60,6 +73,8 @@ body {
 .btn-primary { background: var(--gold); color: #111; font-size: 16px; padding: 12px 32px; }
 .btn-small { background: var(--bg-card); padding: 6px 12px; font-size: 12px; }
 .btn-cancel { background: var(--accent); }
+.btn-yes { background: var(--green) !important; color: #111 !important; margin-left: 12px; }
+.btn-no { background: var(--bg-card) !important; margin-left: 6px; }
 .btn-action {
   padding: 8px 16px;
   font-size: 13px;
@@ -68,6 +83,27 @@ body {
 .btn-lezen { background: var(--oog); color: #111; }
 .btn-schrijven { background: var(--gold); color: #111; }
 .btn-spreken { background: var(--green); color: #111; }
+.btn-help {
+  background: var(--bg-card);
+  border: 2px solid var(--gold-dim);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  padding: 0;
+  margin-left: 8px;
+}
+.btn-draw-deck {
+  margin-top: 8px;
+  background: var(--green) !important;
+  color: #111 !important;
+  width: 100%;
+}
 
 /* === SETUP SCREEN === */
 .setup-container {
@@ -93,6 +129,7 @@ body {
   border-radius: var(--radius-lg);
   padding: 24px;
   text-align: left;
+  margin-bottom: 20px;
 }
 .setup-section h2 { color: var(--gold); margin-bottom: 8px; }
 .setup-hint { color: var(--text-dim); margin-bottom: 20px; font-size: 14px; }
@@ -137,17 +174,32 @@ body {
   gap: 12px;
   flex-wrap: wrap;
 }
-.setup-section .btn-primary {
-  display: block;
-  margin: 0 auto;
+
+/* Levenswerk setup */
+.levenswerk-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
+.levenswerk-option {
+  background: var(--bg-card);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.levenswerk-option:hover { border-color: var(--gold-dim); }
+.levenswerk-option.selected { border-color: var(--green); background: rgba(78,204,163,0.1); }
+.lw-name { font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+.lw-desc { font-size: 13px; color: var(--text-dim); }
 
 /* === TOP BAR === */
 #top-bar {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 10px 20px;
+  gap: 20px;
+  padding: 8px 16px;
   background: var(--bg-light);
   border-bottom: 2px solid var(--gold-dim);
   flex-wrap: wrap;
@@ -155,34 +207,40 @@ body {
 .bar-section {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .bar-section .label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 .bar-section .value {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--gold);
 }
 .round-name {
   font-style: italic;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 12px;
+}
+.goal-section { flex: 1; min-width: 150px; }
+.goal-value {
+  font-size: 13px !important;
+  color: var(--green) !important;
+  cursor: help;
 }
 .score-section { margin-left: auto; }
-.score-section .value { font-size: 24px; color: var(--green); }
+.score-section .value { font-size: 22px; color: var(--green); }
 
 /* === MAIN LAYOUT === */
 #main-layout {
   display: grid;
   grid-template-columns: 220px 1fr 260px;
-  gap: 12px;
-  padding: 12px;
-  height: calc(100vh - 52px - 40px);
+  gap: 10px;
+  padding: 10px;
+  height: calc(100vh - 50px - 40px);
   overflow: hidden;
 }
 
@@ -190,28 +248,35 @@ body {
 .panel-box {
   background: var(--bg-panel);
   border-radius: var(--radius);
-  padding: 12px;
-  margin-bottom: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
 }
 .panel-box h3 {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--gold);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+.draw-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* Ideas panel */
 .idea-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 4px;
 }
 .idea-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 4px;
   font-size: 13px;
 }
@@ -249,7 +314,7 @@ body {
 .die.wild { background: rgba(233,69,96,0.3); }
 
 /* Open cards */
-.open-cards-row {
+.open-cards-col {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -257,7 +322,7 @@ body {
 
 /* Book info */
 #book-info {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   text-align: center;
   color: var(--gold);
@@ -269,19 +334,53 @@ body {
   max-height: 100%;
 }
 
+/* Levenswerk panel */
+.lw-panel-card {
+  background: var(--bg-card);
+  border-radius: 6px;
+  padding: 8px;
+  border-left: 3px solid var(--green);
+}
+.lw-panel-card .lw-name { font-size: 12px; font-weight: 700; color: var(--gold); }
+.lw-panel-card .lw-desc { font-size: 11px; color: var(--text-dim); }
+
 /* === CENTER BOARD === */
 #center-board {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   overflow: hidden;
 }
 
+/* Book cost row above the board */
+.book-cost-row {
+  display: flex;
+  gap: 10px;
+  padding: 0 12px;
+}
+.row-header-spacer { min-width: 80px; }
+.book-costs {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+.book-cost {
+  flex: 1;
+  min-width: 130px;
+  max-width: 150px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--gold-dim);
+  padding: 2px 0;
+}
+.book-cost::before { content: 'Kosten: '; color: var(--text-dim); font-size: 10px; }
+
+/* Board rows */
 .board-row {
   flex: 1;
   background: var(--bg-light);
   border-radius: var(--radius);
-  padding: 8px 12px;
+  padding: 6px 10px;
   display: flex;
   gap: 10px;
   align-items: stretch;
@@ -294,11 +393,11 @@ body {
   align-items: center;
   justify-content: center;
   min-width: 80px;
-  gap: 4px;
+  gap: 2px;
 }
-.row-icon { font-size: 24px; }
-.row-name { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
-.row-desc { font-size: 10px; color: var(--text-dim); }
+.row-icon { font-size: 22px; }
+.row-name { font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+.row-desc { font-size: 9px; color: var(--text-dim); }
 
 .row-slots {
   display: flex;
@@ -320,9 +419,7 @@ body {
   cursor: default;
   transition: all 0.2s;
 }
-.board-slot.empty {
-  cursor: pointer;
-}
+.board-slot.empty { cursor: pointer; }
 .board-slot.empty:hover {
   border-color: var(--gold);
   background: rgba(212,168,67,0.05);
@@ -337,7 +434,17 @@ body {
   50% { box-shadow: 0 0 12px rgba(212,168,67,0.3); }
 }
 
-/* === CARDS (mini and full) === */
+/* Slot book cost badge */
+.slot-cost-badge {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 9px;
+  color: var(--gold-dim);
+  opacity: 0.7;
+}
+
+/* === CARDS === */
 .card-mini {
   background: var(--bg-card);
   border-radius: var(--radius);
@@ -351,11 +458,23 @@ body {
 .card-mini:hover { border-color: var(--gold); transform: translateY(-2px); }
 .card-mini.selected { border-color: var(--green); box-shadow: 0 0 10px rgba(78,204,163,0.3); }
 .card-mini.unselected { opacity: 0.5; }
+.card-mini.highlight-pick {
+  border-color: var(--green);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.card-mini.discard-target {
+  border-color: var(--accent);
+  cursor: pointer;
+}
+.card-mini.discard-target:hover {
+  background: rgba(233,69,96,0.15);
+  border-color: var(--accent);
+}
 
 .card-mini .card-name {
   font-size: 11px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -363,12 +482,12 @@ body {
 .card-mini .card-dates {
   font-size: 9px;
   color: var(--text-dim);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .card-mini .card-costs {
   display: flex;
   gap: 3px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .card-mini .card-vp {
   position: absolute;
@@ -393,11 +512,25 @@ body {
   gap: 3px;
   margin-bottom: 3px;
 }
-.card-mini .card-books {
+.card-mini .card-bottom-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 9px;
-  color: var(--gold-dim);
+  margin-top: 3px;
+}
+.card-mini .card-books-info { color: var(--gold-dim); }
+.card-mini .card-invloed { color: var(--text-dim); }
+
+/* Traditie mini badge on card */
+.traditie-mini {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 12px;
+  line-height: 1;
 }
 
+/* Skill badges */
 .skill-badge {
   font-size: 9px;
   padding: 1px 4px;
@@ -422,16 +555,19 @@ body {
 .cost-symbol.passer { background: var(--passer); color: #111; }
 .cost-symbol.sfeer { background: var(--sfeer); color: #111; }
 
-/* Power type indicator */
-.power-type {
+/* Power type dot */
+.power-dot {
   display: inline-block;
   width: 8px; height: 8px;
   border-radius: 50%;
   margin-right: 3px;
+  vertical-align: middle;
 }
-.power-type.bruin { background: var(--bruin); }
-.power-type.roze { background: var(--roze); }
-.power-type.wit { background: var(--wit); }
+.power-dot.bruin { background: var(--bruin); }
+.power-dot.roze { background: var(--roze); }
+.power-dot.wit { background: var(--wit); }
+.power-dot.groenblauw { background: var(--groenblauw); }
+.power-dot.geel { background: var(--geel); }
 
 /* Board card (placed on board) */
 .board-card {
@@ -446,8 +582,25 @@ body {
   overflow: hidden;
   cursor: pointer;
   position: relative;
+  border-left: 3px solid transparent;
 }
 .board-card:hover { outline: 2px solid var(--gold); }
+.board-card.power-bg-bruin { border-left-color: var(--bruin); }
+.board-card.power-bg-roze { border-left-color: var(--roze); }
+.board-card.power-bg-wit { border-left-color: var(--wit); }
+.board-card.power-bg-groenblauw { border-left-color: var(--groenblauw); }
+.board-card.power-bg-geel { border-left-color: var(--geel); }
+
+.board-card.book-target {
+  outline: 2px solid var(--gold);
+  cursor: pointer;
+  animation: pulse 1s ease-in-out infinite;
+}
+.board-card.book-remove-target {
+  outline: 2px solid var(--accent);
+  cursor: pointer;
+}
+
 .board-card .card-name { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
 .board-card .card-vp {
   position: absolute;
@@ -458,6 +611,12 @@ body {
   font-weight: 800;
   padding: 0 4px;
   border-radius: 3px;
+}
+.board-card .card-traditie-badge {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 10px;
 }
 .board-card .card-books-display {
   display: flex;
@@ -473,8 +632,9 @@ body {
   align-items: center;
   justify-content: center;
   color: #111;
+  font-weight: 700;
 }
-.book-slot {
+.book-slot-empty {
   width: 14px; height: 14px;
   border: 1px dashed rgba(212,168,67,0.3);
   border-radius: 2px;
@@ -484,6 +644,11 @@ body {
   color: var(--accent);
   margin-top: 2px;
 }
+.board-card .cache-count {
+  font-size: 9px;
+  color: var(--groenblauw);
+  margin-top: 1px;
+}
 .board-card .card-power-short {
   font-size: 8px;
   color: var(--text-dim);
@@ -492,13 +657,21 @@ body {
   flex: 1;
   overflow: hidden;
 }
-.board-card .activated {
-  animation: glow 0.5s ease-out;
+
+/* Traditie badges */
+.traditie-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 4px 0;
 }
-@keyframes glow {
-  0% { box-shadow: 0 0 20px var(--gold); }
-  100% { box-shadow: none; }
-}
+.traditie-contemplatief { color: var(--trad-contemplatief); background: rgba(124,58,237,0.15); }
+.traditie-empirisch { color: var(--trad-empirisch); background: rgba(37,99,235,0.15); }
+.traditie-dialectisch { color: var(--trad-dialectisch); background: rgba(220,38,38,0.15); }
+.traditie-normatief { color: var(--trad-normatief); background: rgba(5,150,105,0.15); }
+.traditie-eclectisch { color: var(--trad-eclectisch); background: rgba(234,179,8,0.15); }
 
 /* === RIGHT PANEL (HAND) === */
 #right-panel {
@@ -533,10 +706,6 @@ body {
 #action-bar-content {
   flex: 1;
   font-size: 14px;
-}
-#action-bar .btn-confirm {
-  background: var(--green);
-  color: #111;
 }
 
 /* === GAME LOG === */
@@ -585,29 +754,15 @@ body {
   min-width: 350px;
   border: 2px solid var(--gold-dim);
 }
-#modal h2 { color: var(--gold); margin-bottom: 12px; }
-#modal p { margin-bottom: 8px; line-height: 1.5; }
 #modal .modal-card-detail {
   background: var(--bg-card);
   padding: 16px;
   border-radius: var(--radius);
   margin-bottom: 12px;
 }
-#modal .modal-card-detail .card-name { font-size: 18px; font-weight: 700; }
-#modal .modal-card-detail .card-dates { color: var(--text-dim); }
-#modal .modal-card-detail .card-stroming { color: var(--gold-dim); font-style: italic; }
-#modal .modal-card-detail .card-costs { display: flex; gap: 6px; margin: 8px 0; }
-#modal .modal-card-detail .card-power-text { margin-top: 8px; }
-#modal .modal-card-detail .card-quote { font-style: italic; color: var(--text-dim); margin-top: 8px; }
-#modal .modal-card-detail .cost-symbol { width: 24px; height: 24px; font-size: 14px; }
+.modal-traditie { margin: 6px 0; }
 
-/* Choice buttons in modal */
-.choice-grid {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 12px 0;
-}
+/* Choice buttons */
 .choice-btn {
   padding: 8px 16px;
   background: var(--bg-card);
@@ -619,7 +774,83 @@ body {
   transition: all 0.2s;
 }
 .choice-btn:hover { border-color: var(--gold); }
-.choice-btn.selected { border-color: var(--green); background: rgba(78,204,163,0.15); }
+
+/* === HELP PANEL === */
+#help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+#help-panel {
+  background: var(--bg-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 750px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 2px solid var(--gold-dim);
+}
+#help-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--bg-card);
+  padding-bottom: 10px;
+}
+.help-tab {
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.help-tab:hover { color: var(--text); background: rgba(212,168,67,0.15); }
+.help-tab.active {
+  color: var(--gold);
+  background: rgba(212,168,67,0.2);
+  border-bottom: 2px solid var(--gold);
+}
+#help-content {
+  line-height: 1.6;
+  font-size: 14px;
+}
+#help-content h2 {
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+#help-content p { margin-bottom: 10px; }
+#help-content ul, #help-content ol {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+#help-content li { margin-bottom: 4px; }
+#help-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+#help-content th, #help-content td {
+  padding: 6px 10px;
+  border: 1px solid var(--bg-card);
+  text-align: left;
+  font-size: 13px;
+}
+#help-content th {
+  background: var(--bg-card);
+  color: var(--gold);
+  font-weight: 600;
+}
+#help-content td { color: var(--text); }
 
 /* === END SCREEN === */
 .end-container {
@@ -642,7 +873,11 @@ body {
 }
 .score-row .score-label { color: var(--text-dim); }
 .score-row .score-value { font-weight: 700; color: var(--gold); }
-.score-row.total { border-top: 2px solid var(--gold); margin-top: 8px; padding-top: 16px; }
+.score-row.total {
+  border-top: 2px solid var(--gold);
+  margin-top: 8px;
+  padding-top: 16px;
+}
 .score-row.total .score-label { color: var(--text); font-size: 20px; }
 .score-row.total .score-value { color: var(--green); font-size: 24px; }
 
@@ -667,4 +902,7 @@ body {
     flex-wrap: wrap;
   }
   #left-panel .panel-box { flex: 1; min-width: 140px; }
+  .levenswerk-options {
+    grid-template-columns: 1fr;
+  }
 }

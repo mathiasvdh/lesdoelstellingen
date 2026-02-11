@@ -12,19 +12,27 @@
     <div class="setup-container">
       <h1>De Academie</h1>
       <p class="subtitle">Een filosofisch bordspel</p>
+
       <div class="setup-section">
-        <h2>Kies je startfilosofen en ideeen</h2>
-        <p class="setup-hint">Selecteer een combinatie van kaarten en ideeen (totaal = 5). Klik op kaarten om ze te selecteren, gebruik de knoppen om ideeen te kiezen.</p>
+        <h2>Stap 1: Kies je startfilosofen en ideeen</h2>
+        <p class="setup-hint">Kies een combinatie van kaarten en ideeen (totaal = 5).</p>
         <div class="setup-ideas">
-          <h3>Ideeen (<span id="setup-ideas-count">0</span>/5 gekozen)</h3>
+          <h3>Ideeen (<span id="setup-ideas-count">0</span>/5)</h3>
           <div id="setup-idea-selectors" class="idea-selectors"></div>
         </div>
         <div class="setup-cards">
           <h3>Filosofen (<span id="setup-cards-count">0</span> geselecteerd)</h3>
           <div id="setup-hand" class="card-row"></div>
         </div>
-        <button id="btn-start-game" class="btn btn-primary" disabled>Start het Spel</button>
       </div>
+
+      <div class="setup-section" id="setup-levenswerk-section" style="display:none">
+        <h2>Stap 2: Kies je Levenswerk</h2>
+        <p class="setup-hint">Kies 1 persoonlijk einddoel. Je krijgt bonuspunten als je dit bereikt.</p>
+        <div id="setup-levenswerk" class="levenswerk-options"></div>
+      </div>
+
+      <button id="btn-start-game" class="btn btn-primary" disabled>Kies eerst kaarten en ideeen</button>
     </div>
   </div>
 
@@ -42,17 +50,22 @@
         <span id="turn-display" class="value">1/8</span>
       </div>
       <div class="bar-section">
-        <span class="label">Acties over</span>
+        <span class="label">Acties</span>
         <span id="cubes-display" class="value">8</span>
       </div>
       <div class="bar-section">
         <span class="label">Deck</span>
         <span id="deck-count" class="value">0</span>
       </div>
+      <div class="bar-section goal-section">
+        <span class="label">Rondedoel</span>
+        <span id="round-goal-display" class="value goal-value"></span>
+      </div>
       <div class="bar-section score-section">
         <span class="label">Score</span>
         <span id="score-display" class="value">0</span>
       </div>
+      <button id="btn-help" class="btn btn-help" title="Hulp">?</button>
     </header>
 
     <!-- MAIN LAYOUT -->
@@ -66,7 +79,6 @@
         <div class="panel-box" id="library-panel">
           <h3>Bibliotheek</h3>
           <div id="library-dice" class="dice-row"></div>
-          <button id="btn-reroll" class="btn btn-small" style="display:none">Hergooi</button>
         </div>
         <div class="panel-box" id="books-panel">
           <h3>Boeken</h3>
@@ -75,13 +87,30 @@
           </div>
         </div>
         <div class="panel-box" id="open-cards-panel">
-          <h3>Open Kaarten</h3>
-          <div id="open-cards" class="open-cards-row"></div>
+          <h3>Open Kaarten <span class="draw-hint">(klik om te trekken)</span></h3>
+          <div id="open-cards" class="open-cards-col"></div>
+          <button id="btn-draw-deck" class="btn btn-small btn-draw-deck" style="display:none">Trek van stapel</button>
+        </div>
+        <div class="panel-box" id="levenswerk-panel">
+          <h3>Levenswerk</h3>
+          <div id="levenswerk-display"></div>
         </div>
       </aside>
 
       <!-- CENTER: Player Board -->
       <main id="center-board">
+        <!-- Book cost indicators -->
+        <div class="book-cost-row">
+          <div class="row-header-spacer"></div>
+          <div class="book-costs">
+            <div class="book-cost">0</div>
+            <div class="book-cost">1</div>
+            <div class="book-cost">1</div>
+            <div class="book-cost">2</div>
+            <div class="book-cost">2</div>
+          </div>
+        </div>
+
         <div class="board-row" data-row="lezen">
           <div class="row-header">
             <span class="row-icon">&#128214;</span>
@@ -91,18 +120,20 @@
           </div>
           <div class="row-slots" id="row-lezen"></div>
         </div>
+
         <div class="board-row" data-row="schrijven">
           <div class="row-header">
-            <span class="row-icon">&#9997;</span>
+            <span class="row-icon">&#9997;&#65039;</span>
             <span class="row-name">SCHRIJVEN</span>
             <span class="row-desc">Publiceren</span>
             <button class="btn btn-action btn-schrijven" data-action="schrijven">Schrijven</button>
           </div>
           <div class="row-slots" id="row-schrijven"></div>
         </div>
+
         <div class="board-row" data-row="spreken">
           <div class="row-header">
-            <span class="row-icon">&#127908;</span>
+            <span class="row-icon">&#128483;&#65039;</span>
             <span class="row-name">SPREKEN</span>
             <span class="row-desc">Dialoog voeren</span>
             <button class="btn btn-action btn-spreken" data-action="spreken">Spreken</button>
@@ -120,7 +151,7 @@
       </aside>
     </div>
 
-    <!-- ACTION BAR (context-sensitive) -->
+    <!-- ACTION BAR -->
     <div id="action-bar" class="hidden">
       <div id="action-bar-content"></div>
       <button id="btn-cancel-action" class="btn btn-cancel">Annuleer</button>
@@ -141,11 +172,29 @@
     </div>
   </div>
 
-  <!-- MODAL for card details / choices -->
+  <!-- MODAL -->
   <div id="modal-overlay" class="hidden">
     <div id="modal">
       <div id="modal-content"></div>
       <button id="modal-close" class="btn btn-small">Sluiten</button>
+    </div>
+  </div>
+
+  <!-- HELP PANEL -->
+  <div id="help-overlay" class="hidden">
+    <div id="help-panel">
+      <div id="help-nav">
+        <button class="help-tab active" data-topic="overzicht">Overzicht</button>
+        <button class="help-tab" data-topic="filosoof_plaatsen">Plaatsen</button>
+        <button class="help-tab" data-topic="lezen">Lezen</button>
+        <button class="help-tab" data-topic="schrijven">Schrijven</button>
+        <button class="help-tab" data-topic="spreken">Spreken</button>
+        <button class="help-tab" data-topic="krachten">Krachten</button>
+        <button class="help-tab" data-topic="tradities">Tradities</button>
+        <button class="help-tab" data-topic="scoring">Scoring</button>
+      </div>
+      <div id="help-content"></div>
+      <button id="help-close" class="btn btn-small">Sluiten</button>
     </div>
   </div>
 
