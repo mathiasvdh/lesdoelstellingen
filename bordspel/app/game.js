@@ -1,6 +1,6 @@
 // ============================================================
-// DE ACADEMIE - Game Engine v2.0
-// Volledig herwerkt volgens Wingspan-mechanieken
+// DE ACADEMIE - Game Engine v3.0
+// Supports single-player and multiplayer (2-4 players)
 // ============================================================
 
 const IDEA_TYPES = ['weegschaal', 'oog', 'spiegel', 'passer', 'sfeer'];
@@ -40,7 +40,6 @@ const TRADITIE_NAMES = {
 const ROUND_NAMES = ['De Oudheid', 'De Middeleeuwen', 'De Verlichting', 'De Moderne Tijd'];
 const TURNS_PER_ROUND = [8, 7, 6, 5];
 
-// Book (egg) cost per column position (0-indexed)
 const BOOK_COST_PER_COLUMN = [0, 1, 1, 2, 2];
 
 const SKILL_MAP = { 'L': 'lezen', 'S': 'schrijven', 'Sp': 'spreken' };
@@ -49,8 +48,6 @@ const ROW_TO_SKILL = { 'lezen': 'L', 'schrijven': 'S', 'spreken': 'Sp' };
 // ============================================================
 // Row benefits - matches Wingspan exactly
 // ============================================================
-// Lezen (Forest/Gain Food): 1, 1+conv, 2, 2+conv, 3, 3+conv
-// Conversion: discard 1 card from hand → gain 1 extra idea
 const LEZEN_BENEFITS = [
   { ideas: 1, conversion: false },
   { ideas: 1, conversion: true },
@@ -60,8 +57,6 @@ const LEZEN_BENEFITS = [
   { ideas: 3, conversion: true }
 ];
 
-// Schrijven (Grassland/Lay Eggs): 2, 2+conv, 3, 3+conv, 4, 4+conv
-// Conversion: pay 1 idea → lay 1 extra book
 const SCHRIJVEN_BENEFITS = [
   { books: 2, conversion: false },
   { books: 2, conversion: true },
@@ -71,8 +66,6 @@ const SCHRIJVEN_BENEFITS = [
   { books: 4, conversion: true }
 ];
 
-// Spreken (Wetland/Draw Cards): 1, 1+conv, 2, 2+conv, 3, 3+conv
-// Conversion: discard 1 book → draw 1 extra card
 const SPREKEN_BENEFITS = [
   { cards: 1, conversion: false },
   { cards: 1, conversion: true },
@@ -83,98 +76,116 @@ const SPREKEN_BENEFITS = [
 ];
 
 // ============================================================
-// Round Goals (Paradigmaverschuivingen)
+// Round Goals
 // ============================================================
 const ALL_ROUND_GOALS = [
-  { id: 'rg1', naam: 'Het Grote Debat', beschrijving: 'Meeste filosofen in de Spreken-rij', score: g => g.player.board.spreken.length },
-  { id: 'rg2', naam: 'De Encyclopedie', beschrijving: 'Meeste boeken op het bord', score: g => g.player.booksOnBoard },
-  { id: 'rg3', naam: 'De Analytische School', beschrijving: 'Meeste Empirische filosofen met boeken', score: g => g.countTraditieWithBooks('empirisch') },
-  { id: 'rg4', naam: 'De Contemplatieve Traditie', beschrijving: 'Meeste Contemplatieve filosofen met boeken', score: g => g.countTraditieWithBooks('contemplatief') },
-  { id: 'rg5', naam: 'De Dialoog der Tradities', beschrijving: 'Meeste filosofen in de Lezen-rij', score: g => g.player.board.lezen.length },
-  { id: 'rg6', naam: 'Het Oeuvre', beschrijving: 'Meeste referenties (geciteerde kaarten)', score: g => g.player.tuckedCards },
-  { id: 'rg7', naam: 'De Polymath', beschrijving: 'Meeste filosofen in de Schrijven-rij', score: g => g.player.board.schrijven.length },
-  { id: 'rg8', naam: 'Intellectueel Kapitaal', beschrijving: 'Meeste opgeslagen ideeen op filosofen', score: g => g.player.cachedIdeas },
-  { id: 'rg9', naam: 'Kritische Massa', beschrijving: 'Meeste Dialectische filosofen met boeken', score: g => g.countTraditieWithBooks('dialectisch') },
-  { id: 'rg10', naam: 'De Ethische School', beschrijving: 'Meeste Normatieve filosofen met boeken', score: g => g.countTraditieWithBooks('normatief') },
-  { id: 'rg11', naam: 'De Brede Academie', beschrijving: 'Filosofen in alle drie de rijen (tel kleinste rij)', score: g => Math.min(g.player.board.lezen.length, g.player.board.schrijven.length, g.player.board.spreken.length) },
-  { id: 'rg12', naam: 'De Invloedrijken', beschrijving: 'Meeste filosofen met invloed >= 5', score: g => g.countByCondition(c => c.invloed >= 5) },
+  { id: 'rg1', naam: 'Het Grote Debat', beschrijving: 'Meeste filosofen in de Spreken-rij', scoreFn: 'spreken_count' },
+  { id: 'rg2', naam: 'De Encyclopedie', beschrijving: 'Meeste boeken op het bord', scoreFn: 'books_count' },
+  { id: 'rg3', naam: 'De Analytische School', beschrijving: 'Meeste Empirische filosofen met boeken', scoreFn: 'empirisch_books' },
+  { id: 'rg4', naam: 'De Contemplatieve Traditie', beschrijving: 'Meeste Contemplatieve filosofen met boeken', scoreFn: 'contemplatief_books' },
+  { id: 'rg5', naam: 'De Dialoog der Tradities', beschrijving: 'Meeste filosofen in de Lezen-rij', scoreFn: 'lezen_count' },
+  { id: 'rg6', naam: 'Het Oeuvre', beschrijving: 'Meeste referenties (geciteerde kaarten)', scoreFn: 'tucked_count' },
+  { id: 'rg7', naam: 'De Polymath', beschrijving: 'Meeste filosofen in de Schrijven-rij', scoreFn: 'schrijven_count' },
+  { id: 'rg8', naam: 'Intellectueel Kapitaal', beschrijving: 'Meeste opgeslagen ideeen op filosofen', scoreFn: 'cached_count' },
+  { id: 'rg9', naam: 'Kritische Massa', beschrijving: 'Meeste Dialectische filosofen met boeken', scoreFn: 'dialectisch_books' },
+  { id: 'rg10', naam: 'De Ethische School', beschrijving: 'Meeste Normatieve filosofen met boeken', scoreFn: 'normatief_books' },
+  { id: 'rg11', naam: 'De Brede Academie', beschrijving: 'Filosofen in alle drie de rijen (tel kleinste rij)', scoreFn: 'min_row' },
+  { id: 'rg12', naam: 'De Invloedrijken', beschrijving: 'Meeste filosofen met invloed >= 5', scoreFn: 'high_influence' },
 ];
 
 // ============================================================
-// Levenswerk (Bonus Cards / Personal Goals)
+// Levenswerk
 // ============================================================
 const ALL_LEVENSWERK = [
-  { id: 'lw1', naam: 'Stichter van een School', beschrijving: '4+ filosofen van dezelfde traditie', score: g => { const counts = g.traditieCounts(); return Math.max(...Object.values(counts)) >= 4 ? 5 : 0; } },
-  { id: 'lw2', naam: 'Meester-Lezer', beschrijving: '4+ filosofen in de Lezen-rij', score: g => g.player.board.lezen.length >= 4 ? 5 : 0 },
-  { id: 'lw3', naam: 'De Synthese', beschrijving: 'Minstens 1 filosoof van elke traditie (excl. eclectisch)', score: g => { const c = g.traditieCounts(); return (c.contemplatief > 0 && c.empirisch > 0 && c.dialectisch > 0 && c.normatief > 0) ? 7 : 0; } },
-  { id: 'lw4', naam: 'Bibliothecaris', beschrijving: '8+ boeken op het bord', score: g => g.player.booksOnBoard >= 8 ? 5 : 0 },
-  { id: 'lw5', naam: 'Kroniekschrijver', beschrijving: '5+ referenties', score: g => g.player.tuckedCards >= 5 ? 5 : 0 },
-  { id: 'lw6', naam: 'Universeel Genie', beschrijving: '3+ filosofen in elke rij', score: g => (g.player.board.lezen.length >= 3 && g.player.board.schrijven.length >= 3 && g.player.board.spreken.length >= 3) ? 8 : 0 },
-  { id: 'lw7', naam: 'De Verzamelaar', beschrijving: '4+ filosofen met 0 boekkosten', score: g => g.countByCondition(c => c.kosten.length === 0) >= 4 ? 4 : 0 },
-  { id: 'lw8', naam: 'Diep Denken', beschrijving: '3+ filosofen met 3+ ideekosten', score: g => g.countByCondition(c => c.kosten.length >= 3) >= 3 ? 7 : 0 },
-  { id: 'lw9', naam: 'Meester-Schrijver', beschrijving: '4+ filosofen in de Schrijven-rij', score: g => g.player.board.schrijven.length >= 4 ? 5 : 0 },
-  { id: 'lw10', naam: 'Redenaar', beschrijving: '4+ filosofen in de Spreken-rij', score: g => g.player.board.spreken.length >= 4 ? 5 : 0 },
-  { id: 'lw11', naam: 'De Empirist', beschrijving: '3+ Empirische filosofen', score: g => (g.traditieCounts().empirisch || 0) >= 3 ? 5 : 0 },
-  { id: 'lw12', naam: 'De Dialecticus', beschrijving: '3+ Dialectische filosofen', score: g => (g.traditieCounts().dialectisch || 0) >= 3 ? 5 : 0 },
-  { id: 'lw13', naam: 'Intellectueel Kapitalist', beschrijving: '4+ opgeslagen ideeen', score: g => g.player.cachedIdeas >= 4 ? 5 : 0 },
-  { id: 'lw14', naam: 'De Boekenplank', beschrijving: '3+ filosofen met volle boekcapaciteit', score: g => g.countByCondition(c => c.books >= c.boek_capaciteit && c.boek_capaciteit > 0) >= 3 ? 5 : 0 },
+  { id: 'lw1', naam: 'Stichter van een School', beschrijving: '4+ filosofen van dezelfde traditie', scoreFn: 'same_traditie_4' },
+  { id: 'lw2', naam: 'Meester-Lezer', beschrijving: '4+ filosofen in de Lezen-rij', scoreFn: 'lezen_4' },
+  { id: 'lw3', naam: 'De Synthese', beschrijving: 'Minstens 1 filosoof van elke traditie (excl. eclectisch)', scoreFn: 'all_tradities' },
+  { id: 'lw4', naam: 'Bibliothecaris', beschrijving: '8+ boeken op het bord', scoreFn: 'books_8' },
+  { id: 'lw5', naam: 'Kroniekschrijver', beschrijving: '5+ referenties', scoreFn: 'tucked_5' },
+  { id: 'lw6', naam: 'Universeel Genie', beschrijving: '3+ filosofen in elke rij', scoreFn: 'all_rows_3' },
+  { id: 'lw7', naam: 'De Verzamelaar', beschrijving: '4+ filosofen met 0 boekkosten', scoreFn: 'free_4' },
+  { id: 'lw8', naam: 'Diep Denken', beschrijving: '3+ filosofen met 3+ ideekosten', scoreFn: 'expensive_3' },
+  { id: 'lw9', naam: 'Meester-Schrijver', beschrijving: '4+ filosofen in de Schrijven-rij', scoreFn: 'schrijven_4' },
+  { id: 'lw10', naam: 'Redenaar', beschrijving: '4+ filosofen in de Spreken-rij', scoreFn: 'spreken_4' },
+  { id: 'lw11', naam: 'De Empirist', beschrijving: '3+ Empirische filosofen', scoreFn: 'empirisch_3' },
+  { id: 'lw12', naam: 'De Dialecticus', beschrijving: '3+ Dialectische filosofen', scoreFn: 'dialectisch_3' },
+  { id: 'lw13', naam: 'Intellectueel Kapitalist', beschrijving: '4+ opgeslagen ideeen', scoreFn: 'cached_4' },
+  { id: 'lw14', naam: 'De Boekenplank', beschrijving: '3+ filosofen met volle boekcapaciteit', scoreFn: 'full_books_3' },
 ];
 
 // ============================================================
 // Game State
 // ============================================================
 const Game = {
+  mode: 'single', // 'single' or 'multi'
   deck: [],
   openCards: [],
   library: [],
   round: 0,
   turn: 0,
-  cubesLeft: 0,
+
+  // Multiplayer
+  players: {},       // { playerId: playerState }
+  turnOrder: [],     // [playerId, ...]
+  currentPlayerIndex: 0,
+  myId: 'local',     // This client's ID
 
   roundGoals: [],
-  roundGoalScores: [],
-  levenswerkOptions: [],
+  roundGoalScores: {},  // { playerId: [scores] }
+  levenswerkOptions: {}, // { playerId: [options] }
 
-  player: {
-    hand: [],
-    board: { lezen: [], schrijven: [], spreken: [] },
-    ideas: { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 },
-    booksOnBoard: 0,
-    tuckedCards: 0,
-    cachedIdeas: 0,
-    levenswerk: null,
-  },
-
-  currentAction: null,
-  selectedCard: null,
   log: [],
   gameOver: false,
+  phase: 'lobby',    // 'lobby', 'setup', 'playing', 'gameOver'
 
   // ==========================================================
   // INIT
   // ==========================================================
-  init() {
+  init(mode, playerIds) {
+    this.mode = mode || 'single';
     this.deck = shuffle([...ALL_CARDS]);
     this.openCards = [this.deck.pop(), this.deck.pop(), this.deck.pop()];
     this.rollLibrary();
     this.round = 0;
     this.turn = 0;
-    this.cubesLeft = TURNS_PER_ROUND[0];
     this.gameOver = false;
-    this.currentAction = null;
-    this.selectedCard = null;
     this.log = [];
-    this.roundGoalScores = [];
+    this.roundGoalScores = {};
+    this.phase = 'setup';
 
     // Pick 4 random round goals
     const shuffledGoals = shuffle([...ALL_ROUND_GOALS]);
     this.roundGoals = shuffledGoals.slice(0, 4);
 
-    // Pick 4 levenswerk options (player chooses 1)
-    const shuffledLW = shuffle([...ALL_LEVENSWERK]);
-    this.levenswerkOptions = shuffledLW.slice(0, 4);
+    const ids = playerIds || ['local'];
+    this.turnOrder = [...ids];
+    this.currentPlayerIndex = 0;
+    this.players = {};
 
-    this.player = {
+    const startCardsPerPlayer = {};
+
+    for (const id of ids) {
+      this.players[id] = this.createPlayer(id === 'local' && this.mode === 'single' ? 'Jij' : '');
+      this.roundGoalScores[id] = [];
+
+      // Deal 5 start cards per player
+      const cards = [];
+      for (let i = 0; i < 5; i++) {
+        if (this.deck.length > 0) cards.push(this.deck.pop());
+      }
+      startCardsPerPlayer[id] = cards;
+
+      // Pick 4 levenswerk options per player (unique)
+      const shuffledLW = shuffle([...ALL_LEVENSWERK]);
+      this.levenswerkOptions[id] = shuffledLW.slice(0, 4);
+    }
+
+    return startCardsPerPlayer;
+  },
+
+  createPlayer(name) {
+    return {
+      name: name || '',
       hand: [],
       board: { lezen: [], schrijven: [], spreken: [] },
       ideas: { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 },
@@ -182,22 +193,59 @@ const Game = {
       tuckedCards: 0,
       cachedIdeas: 0,
       levenswerk: null,
+      levenswerkId: null,
+      cubesLeft: TURNS_PER_ROUND[0],
+      ready: false,
     };
+  },
 
-    const startCards = [];
-    for (let i = 0; i < 5; i++) {
-      if (this.deck.length > 0) startCards.push(this.deck.pop());
-    }
-    return startCards;
+  // ==========================================================
+  // PLAYER HELPERS
+  // ==========================================================
+  getPlayer(id) {
+    return this.players[id || this.myId];
+  },
+
+  getMyPlayer() {
+    return this.players[this.myId];
+  },
+
+  getCurrentPlayerId() {
+    return this.turnOrder[this.currentPlayerIndex];
+  },
+
+  getCurrentPlayer() {
+    return this.players[this.getCurrentPlayerId()];
+  },
+
+  isMyTurn() {
+    return this.getCurrentPlayerId() === this.myId;
+  },
+
+  getPlayerName(id) {
+    const p = this.players[id];
+    return p ? (p.name || id) : id;
   },
 
   // ==========================================================
   // SETUP
   // ==========================================================
-  finishSetup(selectedCards, ideas, levenswerk) {
-    this.player.hand = selectedCards;
-    this.player.ideas = { ...ideas };
-    this.player.levenswerk = levenswerk;
+  finishSetup(playerId, selectedCards, ideas, levenswerkId) {
+    const p = this.players[playerId];
+    if (!p) return;
+    p.hand = selectedCards;
+    p.ideas = { ...ideas };
+    p.levenswerkId = levenswerkId;
+    p.levenswerk = ALL_LEVENSWERK.find(lw => lw.id === levenswerkId) || null;
+    p.ready = true;
+  },
+
+  allPlayersReady() {
+    return this.turnOrder.every(id => this.players[id] && this.players[id].ready);
+  },
+
+  startPlaying() {
+    this.phase = 'playing';
     this.addLog('Spel gestart!', 'important');
     this.addLog(`Ronde 1: ${ROUND_NAMES[0]}`, 'important');
     this.addLog(`Rondedoel: ${this.roundGoals[0].naam}`, 'important');
@@ -208,9 +256,7 @@ const Game = {
   // ==========================================================
   rollLibrary() {
     this.library = [];
-    for (let i = 0; i < 5; i++) {
-      this.library.push(this.rollDie());
-    }
+    for (let i = 0; i < 5; i++) this.library.push(this.rollDie());
   },
 
   rollDie() {
@@ -223,86 +269,95 @@ const Game = {
     return 'wild';
   },
 
-  takeFromLibrary(index, asType) {
+  takeFromLibrary(index, asType, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     const die = this.library[index];
     const type = die === 'wild' ? asType : die;
-    this.player.ideas[type]++;
+    p.ideas[type]++;
     this.library[index] = this.rollDie();
-    this.addLog(`+1 ${IDEA_NAMES[type]}`, 'gain');
+    this.addLog(`${this.getPlayerName(playerId)}: +1 ${IDEA_NAMES[type]}`, 'gain');
     return type;
   },
 
   // ==========================================================
-  // PLACEMENT COST (egg cost equivalent)
+  // PLACEMENT
   // ==========================================================
-  getBookCostForColumn(row) {
-    const col = this.player.board[row].length; // next column index
+  getBookCostForColumn(row, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
+    const col = p.board[row].length;
     return BOOK_COST_PER_COLUMN[col] || 0;
   },
 
-  canPlacePhilosopher(card, row) {
+  canPlacePhilosopher(card, row, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     const skill = ROW_TO_SKILL[row];
     if (!card.vaardigheden.includes(skill)) return false;
-    if (this.player.board[row].length >= 5) return false;
+    if (p.board[row].length >= 5) return false;
 
-    // Check idea costs
     const costCount = {};
-    for (const c of card.kosten) {
-      costCount[c] = (costCount[c] || 0) + 1;
-    }
+    for (const c of card.kosten) costCount[c] = (costCount[c] || 0) + 1;
     for (const [type, count] of Object.entries(costCount)) {
-      if (this.player.ideas[type] < count) return false;
+      if (p.ideas[type] < count) return false;
     }
 
-    // Check book cost for column
-    const bookCost = this.getBookCostForColumn(row);
-    if (bookCost > 0 && this.player.booksOnBoard < bookCost) return false;
-
+    const bookCost = this.getBookCostForColumn(row, playerId);
+    if (bookCost > 0 && p.booksOnBoard < bookCost) return false;
     return true;
   },
 
-  placePhilosopher(card, row) {
+  placePhilosopher(card, row, playerId) {
+    const pid = playerId || this.getCurrentPlayerId();
+    const p = this.players[pid];
+
     // Pay idea costs
     for (const c of card.kosten) {
-      this.player.ideas[c]--;
-      this.addLog(`-1 ${IDEA_NAMES[c]}`, 'spend');
+      p.ideas[c]--;
+      this.addLog(`${p.name}: -1 ${IDEA_NAMES[c]}`, 'spend');
     }
 
     // Pay book cost
-    const bookCost = this.getBookCostForColumn(row);
+    const bookCost = this.getBookCostForColumn(row, pid);
     if (bookCost > 0) {
-      this.removeBooks(bookCost);
-      this.addLog(`-${bookCost} boek(en) (plaatsingskosten)`, 'spend');
+      this.removeBooks(bookCost, pid);
+      this.addLog(`${p.name}: -${bookCost} boek(en)`, 'spend');
     }
 
     // Remove from hand
-    this.player.hand = this.player.hand.filter(c => c.id !== card.id);
+    p.hand = p.hand.filter(c => c.id !== card.id);
 
     // Place on board
-    const boardCard = {
-      ...card,
-      books: 0,
-      tucked: 0,
-      cached: 0,
-    };
-    this.player.board[row].push(boardCard);
-    this.addLog(`${card.naam} aangesteld in ${row}`, 'important');
+    const boardCard = { ...card, books: 0, tucked: 0, cached: 0 };
+    p.board[row].push(boardCard);
+    this.addLog(`${p.name}: ${card.naam} aangesteld in ${row}`, 'important');
 
     // Execute white power
     if (card.kracht_type === 'wit') {
-      this.executePower(boardCard, 'wit');
+      this.executePower(boardCard, 'wit', pid);
     }
 
-    this.useTurn();
+    // Execute pink powers for OTHER players (multiplayer)
+    if (this.mode === 'multi') {
+      for (const otherId of this.turnOrder) {
+        if (otherId === pid) continue;
+        for (const c of this.getAllBoardCards(otherId)) {
+          if (c.kracht_type === 'roze') {
+            this.executePower(c, 'roze', otherId);
+          }
+        }
+      }
+    }
+
+    this.useTurn(pid);
   },
 
-  removeBooks(count) {
+  removeBooks(count, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     let remaining = count;
     for (const row of ['lezen', 'schrijven', 'spreken']) {
-      for (const card of this.player.board[row]) {
+      for (const card of p.board[row]) {
         while (card.books > 0 && remaining > 0) {
           card.books--;
-          this.player.booksOnBoard--;
+          p.booksOnBoard--;
           remaining--;
         }
         if (remaining <= 0) break;
@@ -314,19 +369,21 @@ const Game = {
   // ==========================================================
   // ROW ACTIONS
   // ==========================================================
-  getRowBenefit(row) {
-    const count = this.player.board[row].length;
+  getRowBenefit(row, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
+    const count = p.board[row].length;
     const idx = Math.min(count, 5);
     if (row === 'lezen') return LEZEN_BENEFITS[idx];
     if (row === 'schrijven') return SCHRIJVEN_BENEFITS[idx];
     if (row === 'spreken') return SPREKEN_BENEFITS[idx];
   },
 
-  activateBrownPowers(row) {
-    const cards = this.player.board[row];
+  activateBrownPowers(row, playerId) {
+    const pid = playerId || this.getCurrentPlayerId();
+    const cards = this.players[pid].board[row];
     for (let i = cards.length - 1; i >= 0; i--) {
       if (cards[i].kracht_type === 'bruin') {
-        this.executePower(cards[i], 'bruin');
+        this.executePower(cards[i], 'bruin', pid);
       }
     }
   },
@@ -334,7 +391,9 @@ const Game = {
   // ==========================================================
   // POWER EXECUTION
   // ==========================================================
-  executePower(card, type) {
+  executePower(card, type, playerId) {
+    const pid = playerId || this.getCurrentPlayerId();
+    const p = this.players[pid];
     const kracht = card.kracht.toLowerCase();
 
     // --- GAIN IDEAS ---
@@ -343,26 +402,25 @@ const Game = {
     if (ideaMatch && wantsIdeas) {
       const amount = parseInt(ideaMatch[1]);
       const types = this.parseIdeaTypes(kracht);
-
       if (types.length > 0) {
         for (let i = 0; i < Math.min(amount, types.length); i++) {
-          this.player.ideas[types[i]]++;
+          p.ideas[types[i]]++;
           this.addLog(`${card.naam}: +1 ${IDEA_NAMES[types[i]]}`, 'gain');
         }
         for (let i = types.length; i < amount; i++) {
-          this.player.ideas[types[0]]++;
+          p.ideas[types[0]]++;
           this.addLog(`${card.naam}: +1 ${IDEA_NAMES[types[0]]}`, 'gain');
         }
       } else if (kracht.includes('willekeurig') || kracht.includes('bibliotheek') || kracht.includes('en pak')) {
         for (let i = 0; i < amount; i++) {
           const t = this.randomIdeaType();
-          this.player.ideas[t]++;
+          p.ideas[t]++;
           this.addLog(`${card.naam}: +1 ${IDEA_NAMES[t]}`, 'gain');
         }
       } else if (kracht.includes('naar keuze')) {
         for (let i = 0; i < amount; i++) {
-          const t = this.bestIdeaType();
-          this.player.ideas[t]++;
+          const t = this.bestIdeaType(pid);
+          p.ideas[t]++;
           this.addLog(`${card.naam}: +1 ${IDEA_NAMES[t]}`, 'gain');
         }
       }
@@ -372,7 +430,7 @@ const Game = {
     const cardMatch = kracht.match(/trek (\d+) kaart/);
     if (cardMatch) {
       const n = parseInt(cardMatch[1]);
-      this.drawCards(n);
+      this.drawCards(n, pid);
       this.addLog(`${card.naam}: +${n} kaart(en)`, 'gain');
     }
 
@@ -382,22 +440,18 @@ const Game = {
       if (bookMatch) {
         const n = parseInt(bookMatch[1]);
         if (kracht.includes('op elke filosoof')) {
-          // Place books on each philosopher in the relevant scope
-          const row = this.findCardRow(card);
-          const targets = row ? this.player.board[row] : this.getAllBoardCards();
+          const row = this.findCardRow(card, pid);
+          const targets = row ? p.board[row] : this.getAllBoardCards(pid);
           for (const target of targets) {
             for (let i = 0; i < n; i++) {
               if (target.books < target.boek_capaciteit) {
                 target.books++;
-                this.player.booksOnBoard++;
-                this.addLog(`${card.naam}: +1 boek op ${target.naam}`, 'gain');
+                p.booksOnBoard++;
               }
             }
           }
         } else {
-          for (let i = 0; i < n; i++) {
-            this.autoPlaceBook(card);
-          }
+          for (let i = 0; i < n; i++) this.autoPlaceBook(card, pid);
         }
       }
     }
@@ -409,9 +463,8 @@ const Game = {
       for (let i = 0; i < n; i++) {
         if (this.deck.length > 0) {
           card.tucked++;
-          this.player.tuckedCards++;
+          p.tuckedCards++;
           this.deck.pop();
-          this.addLog(`${card.naam}: +1 referentie`, 'gain');
         }
       }
     }
@@ -421,12 +474,11 @@ const Game = {
       const cacheMatch = kracht.match(/sla (\d+)/);
       const n = cacheMatch ? parseInt(cacheMatch[1]) : 1;
       for (let i = 0; i < n; i++) {
-        const t = this.bestIdeaType();
-        if (this.player.ideas[t] > 0) {
-          this.player.ideas[t]--;
+        const t = this.bestIdeaType(pid);
+        if (p.ideas[t] > 0) {
+          p.ideas[t]--;
           card.cached++;
-          this.player.cachedIdeas++;
-          this.addLog(`${card.naam}: +1 opgeslagen idee`, 'gain');
+          p.cachedIdeas++;
         }
       }
     }
@@ -434,7 +486,6 @@ const Game = {
     // --- REROLL LIBRARY ---
     if (kracht.includes('hergooi') && kracht.includes('bibliotheek')) {
       this.rollLibrary();
-      this.addLog(`${card.naam}: Bibliotheek hergegooid`, 'gain');
     }
   },
 
@@ -452,13 +503,11 @@ const Game = {
     return IDEA_TYPES[Math.floor(Math.random() * IDEA_TYPES.length)];
   },
 
-  bestIdeaType() {
+  bestIdeaType(playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     let min = Infinity, best = 'weegschaal';
     for (const t of IDEA_TYPES) {
-      if (this.player.ideas[t] < min) {
-        min = this.player.ideas[t];
-        best = t;
-      }
+      if (p.ideas[t] < min) { min = p.ideas[t]; best = t; }
     }
     return best;
   },
@@ -466,18 +515,18 @@ const Game = {
   // ==========================================================
   // CARD & BOOK HELPERS
   // ==========================================================
-  drawCards(n) {
+  drawCards(n, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     for (let i = 0; i < n; i++) {
-      if (this.deck.length > 0) {
-        this.player.hand.push(this.deck.pop());
-      }
+      if (this.deck.length > 0) p.hand.push(this.deck.pop());
     }
   },
 
-  drawFromOpen(index) {
+  drawFromOpen(index, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     if (index >= 0 && index < this.openCards.length) {
       const card = this.openCards[index];
-      this.player.hand.push(card);
+      p.hand.push(card);
       if (this.deck.length > 0) {
         this.openCards[index] = this.deck.pop();
       } else {
@@ -488,120 +537,182 @@ const Game = {
     return null;
   },
 
-  drawFromDeck() {
+  drawFromDeck(playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     if (this.deck.length > 0) {
       const card = this.deck.pop();
-      this.player.hand.push(card);
+      p.hand.push(card);
       return card;
     }
     return null;
   },
 
-  findCardRow(card) {
+  findCardRow(card, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     for (const row of ['lezen', 'schrijven', 'spreken']) {
-      if (this.player.board[row].some(c => c.id === card.id)) return row;
+      if (p.board[row].some(c => c.id === card.id)) return row;
     }
     return null;
   },
 
-  autoPlaceBook(preferCard) {
-    const allCards = [
-      ...this.player.board.lezen,
-      ...this.player.board.schrijven,
-      ...this.player.board.spreken
-    ];
+  autoPlaceBook(preferCard, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
+    const allCards = [...p.board.lezen, ...p.board.schrijven, ...p.board.spreken];
 
     if (preferCard && preferCard.books < preferCard.boek_capaciteit) {
       preferCard.books++;
-      this.player.booksOnBoard++;
+      p.booksOnBoard++;
       return true;
     }
-
     for (const c of allCards) {
       if (c.books < c.boek_capaciteit) {
         c.books++;
-        this.player.booksOnBoard++;
+        p.booksOnBoard++;
         return true;
       }
     }
     return false;
   },
 
-  placeBookOn(cardId) {
-    const allCards = [
-      ...this.player.board.lezen,
-      ...this.player.board.schrijven,
-      ...this.player.board.spreken
-    ];
+  placeBookOn(cardId, playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
+    const allCards = [...p.board.lezen, ...p.board.schrijven, ...p.board.spreken];
     const card = allCards.find(c => c.id === cardId);
     if (card && card.books < card.boek_capaciteit) {
       card.books++;
-      this.player.booksOnBoard++;
+      p.booksOnBoard++;
       return true;
     }
     return false;
   },
 
-  getAllBoardCards() {
-    return [
-      ...this.player.board.lezen,
-      ...this.player.board.schrijven,
-      ...this.player.board.spreken
-    ];
+  getAllBoardCards(playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
+    if (!p) return [];
+    return [...p.board.lezen, ...p.board.schrijven, ...p.board.spreken];
   },
 
   // ==========================================================
   // SCORING HELPERS
   // ==========================================================
-  traditieCounts() {
+  traditieCounts(playerId) {
     const counts = { contemplatief: 0, empirisch: 0, dialectisch: 0, normatief: 0, eclectisch: 0 };
-    for (const c of this.getAllBoardCards()) {
+    for (const c of this.getAllBoardCards(playerId)) {
       if (c.traditie) counts[c.traditie] = (counts[c.traditie] || 0) + 1;
     }
     return counts;
   },
 
-  countTraditieWithBooks(traditie) {
-    return this.getAllBoardCards().filter(c =>
+  countTraditieWithBooks(traditie, playerId) {
+    return this.getAllBoardCards(playerId).filter(c =>
       (c.traditie === traditie || c.traditie === 'eclectisch') && c.books > 0
     ).length;
   },
 
-  countByCondition(fn) {
-    return this.getAllBoardCards().filter(fn).length;
+  countByCondition(fn, playerId) {
+    return this.getAllBoardCards(playerId).filter(fn).length;
+  },
+
+  // Score a round goal for a specific player
+  scoreRoundGoal(goal, playerId) {
+    const pid = playerId;
+    const p = this.players[pid];
+    if (!p) return 0;
+    switch (goal.scoreFn) {
+      case 'spreken_count': return p.board.spreken.length;
+      case 'books_count': return p.booksOnBoard;
+      case 'empirisch_books': return this.countTraditieWithBooks('empirisch', pid);
+      case 'contemplatief_books': return this.countTraditieWithBooks('contemplatief', pid);
+      case 'lezen_count': return p.board.lezen.length;
+      case 'tucked_count': return p.tuckedCards;
+      case 'schrijven_count': return p.board.schrijven.length;
+      case 'cached_count': return p.cachedIdeas;
+      case 'dialectisch_books': return this.countTraditieWithBooks('dialectisch', pid);
+      case 'normatief_books': return this.countTraditieWithBooks('normatief', pid);
+      case 'min_row': return Math.min(p.board.lezen.length, p.board.schrijven.length, p.board.spreken.length);
+      case 'high_influence': return this.countByCondition(c => c.invloed >= 5, pid);
+      default: return 0;
+    }
+  },
+
+  // Score a levenswerk for a specific player
+  scoreLevenswerkFn(lw, playerId) {
+    const pid = playerId;
+    const p = this.players[pid];
+    if (!p || !lw) return 0;
+    const counts = this.traditieCounts(pid);
+    switch (lw.scoreFn) {
+      case 'same_traditie_4': return Math.max(...Object.values(counts)) >= 4 ? 5 : 0;
+      case 'lezen_4': return p.board.lezen.length >= 4 ? 5 : 0;
+      case 'all_tradities': return (counts.contemplatief > 0 && counts.empirisch > 0 && counts.dialectisch > 0 && counts.normatief > 0) ? 7 : 0;
+      case 'books_8': return p.booksOnBoard >= 8 ? 5 : 0;
+      case 'tucked_5': return p.tuckedCards >= 5 ? 5 : 0;
+      case 'all_rows_3': return (p.board.lezen.length >= 3 && p.board.schrijven.length >= 3 && p.board.spreken.length >= 3) ? 8 : 0;
+      case 'free_4': return this.countByCondition(c => c.kosten.length === 0, pid) >= 4 ? 4 : 0;
+      case 'expensive_3': return this.countByCondition(c => c.kosten.length >= 3, pid) >= 3 ? 7 : 0;
+      case 'schrijven_4': return p.board.schrijven.length >= 4 ? 5 : 0;
+      case 'spreken_4': return p.board.spreken.length >= 4 ? 5 : 0;
+      case 'empirisch_3': return (counts.empirisch || 0) >= 3 ? 5 : 0;
+      case 'dialectisch_3': return (counts.dialectisch || 0) >= 3 ? 5 : 0;
+      case 'cached_4': return p.cachedIdeas >= 4 ? 5 : 0;
+      case 'full_books_3': return this.countByCondition(c => c.books >= c.boek_capaciteit && c.boek_capaciteit > 0, pid) >= 3 ? 5 : 0;
+      default: return 0;
+    }
   },
 
   // ==========================================================
   // TURN & ROUND MANAGEMENT
   // ==========================================================
-  useTurn() {
-    this.cubesLeft--;
+  useTurn(playerId) {
+    const pid = playerId || this.getCurrentPlayerId();
+    const p = this.players[pid];
+    p.cubesLeft--;
     this.turn++;
 
-    if (this.cubesLeft <= 0) {
-      this.endRound();
+    if (this.mode === 'single') {
+      if (p.cubesLeft <= 0) this.endRound();
+    } else {
+      // Move to next player with cubes remaining
+      this.advanceToNextPlayer();
     }
   },
 
+  advanceToNextPlayer() {
+    // Check if all players are done for this round
+    const allDone = this.turnOrder.every(id => this.players[id].cubesLeft <= 0);
+    if (allDone) {
+      this.endRound();
+      return;
+    }
+    // Find next player with cubes left
+    let attempts = 0;
+    do {
+      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.turnOrder.length;
+      attempts++;
+    } while (this.getCurrentPlayer().cubesLeft <= 0 && attempts < this.turnOrder.length * 2);
+  },
+
   endRound() {
-    // Score round goal
     const goal = this.roundGoals[this.round];
     if (goal) {
-      const score = goal.score(this);
-      this.roundGoalScores.push(score);
-      this.addLog(`Ronde ${this.round + 1} - ${goal.naam}: ${score} punten`, 'important');
-    }
-
-    // Activate teal powers (einde van de ronde)
-    for (const card of this.getAllBoardCards()) {
-      if (card.kracht_type === 'groenblauw') {
-        this.executePower(card, 'groenblauw');
+      for (const pid of this.turnOrder) {
+        const score = this.scoreRoundGoal(goal, pid);
+        if (!this.roundGoalScores[pid]) this.roundGoalScores[pid] = [];
+        this.roundGoalScores[pid].push(score);
+        this.addLog(`${this.getPlayerName(pid)} - ${goal.naam}: ${score} punten`, 'important');
       }
     }
 
-    // Reset open cards (like Wingspan card tray reset)
-    this.refreshOpenCards();
+    // Activate groenblauw powers for all players
+    for (const pid of this.turnOrder) {
+      for (const card of this.getAllBoardCards(pid)) {
+        if (card.kracht_type === 'groenblauw') {
+          this.executePower(card, 'groenblauw', pid);
+        }
+      }
+    }
 
+    this.refreshOpenCards();
     this.addLog(`Ronde ${this.round + 1} afgelopen`, 'important');
     this.round++;
 
@@ -611,126 +722,152 @@ const Game = {
     }
 
     this.turn = 0;
-    this.cubesLeft = TURNS_PER_ROUND[this.round];
+    this.currentPlayerIndex = 0;
+    // Reset cubes for all players
+    for (const pid of this.turnOrder) {
+      this.players[pid].cubesLeft = TURNS_PER_ROUND[this.round];
+    }
     this.addLog(`Ronde ${this.round + 1}: ${ROUND_NAMES[this.round]}`, 'important');
     this.addLog(`Rondedoel: ${this.roundGoals[this.round].naam}`, 'important');
   },
 
   refreshOpenCards() {
-    // Discard current open cards and draw new ones
     this.openCards = [];
     for (let i = 0; i < 3; i++) {
-      if (this.deck.length > 0) {
-        this.openCards.push(this.deck.pop());
-      }
+      if (this.deck.length > 0) this.openCards.push(this.deck.pop());
     }
   },
 
   endGame() {
     this.gameOver = true;
+    this.phase = 'gameOver';
     this.addLog('Spel afgelopen!', 'important');
   },
 
   // ==========================================================
   // FINAL SCORING
   // ==========================================================
-  calculateScore() {
-    const p = this.player;
-    let philosopherVP = 0;
-    let bookVP = 0;
-    let tuckVP = 0;
-    let cachedVP = 0;
+  calculateScore(playerId) {
+    const pid = playerId || this.myId;
+    const p = this.players[pid];
+    if (!p) return { total: 0 };
 
-    for (const card of this.getAllBoardCards()) {
+    let philosopherVP = 0, bookVP = 0, tuckVP = 0, cachedVP = 0;
+    for (const card of this.getAllBoardCards(pid)) {
       philosopherVP += card.vp;
       bookVP += card.books;
       tuckVP += card.tucked;
       cachedVP += card.cached;
     }
 
-    // Round goal points
     let roundGoalVP = 0;
-    for (const s of this.roundGoalScores) {
-      roundGoalVP += s;
-    }
+    for (const s of (this.roundGoalScores[pid] || [])) roundGoalVP += s;
 
-    // Levenswerk
     let levenswerkVP = 0;
-    if (p.levenswerk && p.levenswerk.score) {
-      levenswerkVP = p.levenswerk.score(this);
-    }
+    if (p.levenswerk) levenswerkVP = this.scoreLevenswerkFn(p.levenswerk, pid);
 
-    // Yellow (einde spel) powers
     let gameEndVP = 0;
-    for (const card of this.getAllBoardCards()) {
-      if (card.kracht_type === 'geel') {
-        gameEndVP += this.scoreGeelPower(card);
-      }
+    for (const card of this.getAllBoardCards(pid)) {
+      if (card.kracht_type === 'geel') gameEndVP += this.scoreGeelPower(card, pid);
     }
 
     return {
-      philosopherVP,
-      bookVP,
-      tuckVP,
-      cachedVP,
-      roundGoalVP,
-      levenswerkVP,
-      gameEndVP,
+      philosopherVP, bookVP, tuckVP, cachedVP,
+      roundGoalVP, levenswerkVP, gameEndVP,
       total: philosopherVP + bookVP + tuckVP + cachedVP + roundGoalVP + levenswerkVP + gameEndVP
     };
   },
 
-  getTotalIdeas() {
+  getTotalIdeas(playerId) {
+    const p = this.players[playerId || this.getCurrentPlayerId()];
     let total = 0;
-    for (const t of IDEA_TYPES) total += this.player.ideas[t];
+    for (const t of IDEA_TYPES) total += p.ideas[t];
     return total;
   },
 
-  scoreGeelPower(card) {
+  scoreGeelPower(card, playerId) {
+    const pid = playerId || this.myId;
+    const p = this.players[pid];
     const k = card.kracht.toLowerCase();
-    const allCards = this.getAllBoardCards();
+    const allCards = this.getAllBoardCards(pid);
 
-    // "1 VP per filosoof in de rij Lezen/Schrijven/Spreken"
-    if (k.includes('rij lezen')) return this.player.board.lezen.length;
-    if (k.includes('rij schrijven')) return this.player.board.schrijven.length;
-    if (k.includes('rij spreken')) return this.player.board.spreken.length;
-
-    // "1 VP per 2 boeken op je bord"
-    if (k.includes('per 2 boeken')) return Math.floor(this.player.booksOnBoard / 2);
-
-    // "1 VP per filosoof met dezelfde traditie als deze kaart"
+    if (k.includes('rij lezen')) return p.board.lezen.length;
+    if (k.includes('rij schrijven')) return p.board.schrijven.length;
+    if (k.includes('rij spreken')) return p.board.spreken.length;
+    if (k.includes('per 2 boeken')) return Math.floor(p.booksOnBoard / 2);
     if (k.includes('dezelfde traditie als deze')) return allCards.filter(c => c.traditie === card.traditie).length;
-
-    // "1 VP per 3 ideeën in je bezit"
-    if (k.includes('per 3 idee')) return Math.floor(this.getTotalIdeas() / 3);
-
-    // "2 VP als je minstens 1 filosoof in elke rij hebt"
+    if (k.includes('per 3 idee')) return Math.floor(this.getTotalIdeas(pid) / 3);
     if (k.includes('elke rij')) {
-      const hasAll = this.player.board.lezen.length > 0 && this.player.board.schrijven.length > 0 && this.player.board.spreken.length > 0;
-      return hasAll ? 2 : 0;
+      return (p.board.lezen.length > 0 && p.board.schrijven.length > 0 && p.board.spreken.length > 0) ? 2 : 0;
     }
-
-    // "1 VP per 2 referenties op je bord"
-    if (k.includes('referenties')) return Math.floor(this.player.tuckedCards / 2);
-
-    // "2 VP als je 4+ filosofen van dezelfde traditie hebt"
+    if (k.includes('referenties')) return Math.floor(p.tuckedCards / 2);
     if (k.includes('4+ filosofen van dezelfde traditie')) {
       const counts = {};
       for (const c of allCards) counts[c.traditie] = (counts[c.traditie] || 0) + 1;
       return Object.values(counts).some(v => v >= 4) ? 2 : 0;
     }
-
     return 0;
+  },
+
+  // ==========================================================
+  // STATE SERIALIZATION (for network sync)
+  // ==========================================================
+  getState() {
+    return {
+      mode: this.mode,
+      deck: this.deck,
+      openCards: this.openCards,
+      library: this.library,
+      round: this.round,
+      turn: this.turn,
+      players: this.players,
+      turnOrder: this.turnOrder,
+      currentPlayerIndex: this.currentPlayerIndex,
+      roundGoals: this.roundGoals.map(g => g.id),
+      roundGoalScores: this.roundGoalScores,
+      levenswerkOptions: Object.fromEntries(
+        Object.entries(this.levenswerkOptions).map(([k, v]) => [k, v.map(lw => lw.id)])
+      ),
+      log: this.log.slice(-50),
+      gameOver: this.gameOver,
+      phase: this.phase,
+    };
+  },
+
+  loadState(state) {
+    this.mode = state.mode;
+    this.deck = state.deck;
+    this.openCards = state.openCards;
+    this.library = state.library;
+    this.round = state.round;
+    this.turn = state.turn;
+    this.players = state.players;
+    this.turnOrder = state.turnOrder;
+    this.currentPlayerIndex = state.currentPlayerIndex;
+    this.roundGoals = state.roundGoals.map(id => ALL_ROUND_GOALS.find(g => g.id === id)).filter(Boolean);
+    this.roundGoalScores = state.roundGoalScores;
+    this.levenswerkOptions = Object.fromEntries(
+      Object.entries(state.levenswerkOptions).map(([k, ids]) => [k, ids.map(id => ALL_LEVENSWERK.find(lw => lw.id === id)).filter(Boolean)])
+    );
+    this.log = state.log;
+    this.gameOver = state.gameOver;
+    this.phase = state.phase;
+
+    // Reconstruct levenswerk references
+    for (const pid of this.turnOrder) {
+      const p = this.players[pid];
+      if (p && p.levenswerkId) {
+        p.levenswerk = ALL_LEVENSWERK.find(lw => lw.id === p.levenswerkId) || null;
+      }
+    }
   },
 
   // ==========================================================
   // LOGGING
   // ==========================================================
-  addLog(msg, type = '') {
-    this.log.push({ msg, type, time: Date.now() });
-    if (typeof UI !== 'undefined' && UI.updateLog) {
-      UI.updateLog();
-    }
+  addLog(msg, type) {
+    this.log.push({ msg, type: type || '', time: Date.now() });
+    if (typeof UI !== 'undefined' && UI.updateLog) UI.updateLog();
   }
 };
 
@@ -747,7 +884,8 @@ const HELP_DATA = {
 <li><strong>Lezen</strong> - Pak ideeen uit de Bibliotheek</li>
 <li><strong>Schrijven</strong> - Leg boeken op je filosofen</li>
 <li><strong>Spreken</strong> - Trek nieuwe filosofenkaarten</li>
-</ol>`
+</ol>
+<p>Bij <strong>multiplayer</strong> spelen 2-4 spelers om beurten. Roze krachten activeren bij acties van medespelers!</p>`
   },
   filosoof_plaatsen: {
     titel: 'Een Filosoof Aanstellen',
@@ -757,8 +895,7 @@ const HELP_DATA = {
 <li><strong>Ideekosten</strong>: De symbolen linksboven op de kaart</li>
 <li><strong>Boekkosten</strong>: Afhankelijk van de kolom: 0 / 1 / 1 / 2 / 2</li>
 </ul>
-<p>De filosoof moet het juiste vaardigheidsicoon hebben (L/S/Sp) voor de gekozen rij.</p>
-<p><strong>Tip:</strong> Twee ideeen van hetzelfde type kunnen als 1 idee van een ander type tellen!</p>`
+<p>De filosoof moet het juiste vaardigheidsicoon hebben (L/S/Sp) voor de gekozen rij.</p>`
   },
   lezen: {
     titel: 'Lezen (Kennis vergaren)',
@@ -782,8 +919,7 @@ const HELP_DATA = {
 <tr><td>3</td><td>3</td><td>1 idee betalen → +1 boek</td></tr>
 <tr><td>4</td><td>4</td><td>-</td></tr>
 <tr><td>5</td><td>4</td><td>1 idee betalen → +1 boek</td></tr></table>
-<p>Boeken mogen op <strong>elke filosoof</strong> in <strong>elke rij</strong> gelegd worden, zolang er capaciteit is.</p>
-<p>Boeken zijn ook nodig als <strong>plaatsingskosten</strong> voor kolom 2+ (0/1/1/2/2).</p>`
+<p>Boeken mogen op <strong>elke filosoof</strong> in <strong>elke rij</strong> gelegd worden, zolang er capaciteit is.</p>`
   },
   spreken: {
     titel: 'Spreken (Dialoog voeren)',
@@ -794,9 +930,7 @@ const HELP_DATA = {
 <tr><td>2</td><td>2</td><td>-</td></tr>
 <tr><td>3</td><td>2</td><td>1 boek inleveren → +1 kaart</td></tr>
 <tr><td>4</td><td>3</td><td>-</td></tr>
-<tr><td>5</td><td>3</td><td>1 boek inleveren → +1 kaart</td></tr></table>
-<p>Je mag <strong>elke kaart</strong> kiezen uit de open rij of van de stapel trekken.</p>
-<p>Aan het einde van elke ronde worden de open kaarten vervangen.</p>`
+<tr><td>5</td><td>3</td><td>1 boek inleveren → +1 kaart</td></tr></table>`
   },
   krachten: {
     titel: 'Krachttypes',
@@ -813,10 +947,10 @@ const HELP_DATA = {
     titel: 'Filosofische Tradities',
     tekst: `<p>Elke filosoof behoort tot een <strong>traditie</strong>. Dit bepaalt rondedoelen en levenswerk.</p>
 <ul>
-<li><strong>Contemplatief</strong> \uD83E\uDDD8 - Innerlijke reflectie, metafysica (Plato, Descartes, Husserl)</li>
-<li><strong>Empirisch</strong> \uD83D\uDD2C - Observatie, wetenschap (Aristoteles, Locke, Popper)</li>
-<li><strong>Dialectisch</strong> \u2694\uFE0F - Debat, synthese (Socrates, Hegel, Marx)</li>
-<li><strong>Normatief</strong> \u2696\uFE0F - Ethiek, politiek (Kant, Rawls, Arendt)</li>
+<li><strong>Contemplatief</strong> \uD83E\uDDD8 - Innerlijke reflectie, metafysica</li>
+<li><strong>Empirisch</strong> \uD83D\uDD2C - Observatie, wetenschap</li>
+<li><strong>Dialectisch</strong> \u2694\uFE0F - Debat, synthese</li>
+<li><strong>Normatief</strong> \u2696\uFE0F - Ethiek, politiek</li>
 <li><strong>Eclectisch</strong> \u2B50 - Grensoverschrijdend, telt als elke traditie</li>
 </ul>`
   },
@@ -829,7 +963,8 @@ const HELP_DATA = {
 <tr><td>Referenties</td><td>1 per geciteerde kaart</td></tr>
 <tr><td>Opgeslagen ideeen</td><td>1 per idee op een filosoof</td></tr>
 <tr><td>Rondedoelen</td><td>Punten uit Paradigmaverschuivingen</td></tr>
-<tr><td>Levenswerk</td><td>Bonus bij het behalen van je doel</td></tr></table>`
+<tr><td>Levenswerk</td><td>Bonus bij het behalen van je doel</td></tr>
+<tr><td>Gele krachten</td><td>Bonus VP bij eindtelling</td></tr></table>`
   }
 };
 

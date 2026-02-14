@@ -7,11 +7,69 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- LOBBY SCREEN -->
+  <div id="lobby-screen" class="screen">
+    <div class="lobby-container">
+      <div class="lobby-header">
+        <h1>De Academie</h1>
+        <p class="subtitle">Een filosofisch bordspel</p>
+      </div>
+
+      <div class="lobby-mode-select" id="mode-select">
+        <div class="mode-card" id="btn-single">
+          <div class="mode-icon">&#129504;</div>
+          <h3>Solo Spelen</h3>
+          <p>Speel alleen en bouw de beste academie</p>
+        </div>
+        <div class="mode-card" id="btn-multi">
+          <div class="mode-icon">&#128101;</div>
+          <h3>Multiplayer</h3>
+          <p>Speel met 2-4 spelers online</p>
+        </div>
+      </div>
+
+      <!-- Multiplayer Options -->
+      <div id="multi-options" class="hidden">
+        <div class="multi-name-input">
+          <label for="player-name">Je naam:</label>
+          <input type="text" id="player-name" placeholder="Naam..." maxlength="20" value="">
+        </div>
+        <div class="multi-buttons">
+          <button class="btn btn-primary" id="btn-create-room">Maak Spel</button>
+          <div class="join-form">
+            <input type="text" id="join-code" placeholder="CODE" maxlength="4" class="code-input">
+            <button class="btn btn-secondary" id="btn-join-room">Doe Mee</button>
+          </div>
+        </div>
+        <button class="btn btn-text" id="btn-back-to-modes">&larr; Terug</button>
+      </div>
+
+      <!-- Waiting Room -->
+      <div id="waiting-room" class="hidden">
+        <div class="room-code-display">
+          <span class="room-label">Spelcode:</span>
+          <span class="room-code" id="display-room-code">ABCD</span>
+          <button class="btn btn-small" id="btn-copy-code" title="Kopieer code">Kopieer</button>
+        </div>
+        <div class="player-list" id="player-list"></div>
+        <p class="waiting-hint" id="waiting-hint">Wacht op spelers... (2-4 spelers nodig)</p>
+        <button class="btn btn-primary" id="btn-start-multi" disabled>Start Spel</button>
+        <button class="btn btn-text" id="btn-leave-room">&larr; Verlaat Spel</button>
+      </div>
+
+      <!-- Connection error -->
+      <div id="connection-error" class="hidden">
+        <p class="error-msg" id="error-msg"></p>
+        <button class="btn btn-text" id="btn-error-back">&larr; Terug</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SETUP SCREEN -->
-  <div id="setup-screen" class="screen">
+  <div id="setup-screen" class="screen hidden">
     <div class="setup-container">
       <h1>De Academie</h1>
-      <p class="subtitle">Een filosofisch bordspel</p>
+      <p class="subtitle" id="setup-subtitle">Kies je startopstelling</p>
 
       <div class="setup-section">
         <h2>Stap 1: Kies je startfilosofen en ideeen</h2>
@@ -33,6 +91,9 @@
       </div>
 
       <button id="btn-start-game" class="btn btn-primary" disabled>Kies eerst kaarten en ideeen</button>
+      <div id="setup-waiting" class="hidden">
+        <p class="waiting-text">Wachten op andere spelers...</p>
+      </div>
     </div>
   </div>
 
@@ -45,7 +106,7 @@
         <span id="round-display" class="value">1/4</span>
         <span id="round-name" class="round-name">De Oudheid</span>
       </div>
-      <div class="bar-section">
+      <div class="bar-section" id="turn-section">
         <span class="label">Beurt</span>
         <span id="turn-display" class="value">1/8</span>
       </div>
@@ -67,6 +128,16 @@
       </div>
       <button id="btn-help" class="btn btn-help" title="Hulp">?</button>
     </header>
+
+    <!-- TURN INDICATOR (multiplayer) -->
+    <div id="turn-indicator" class="hidden">
+      <span id="turn-indicator-text"></span>
+    </div>
+
+    <!-- PLAYER TABS (multiplayer) -->
+    <div id="player-tabs" class="hidden">
+      <div id="player-tabs-list"></div>
+    </div>
 
     <!-- MAIN LAYOUT -->
     <div id="main-layout">
@@ -111,7 +182,7 @@
           </div>
         </div>
 
-        <div class="board-row" data-row="lezen">
+        <div class="board-row row-lezen" data-row="lezen">
           <div class="row-header">
             <span class="row-icon">&#128214;</span>
             <span class="row-name">LEZEN</span>
@@ -121,7 +192,7 @@
           <div class="row-slots" id="row-lezen"></div>
         </div>
 
-        <div class="board-row" data-row="schrijven">
+        <div class="board-row row-schrijven" data-row="schrijven">
           <div class="row-header">
             <span class="row-icon">&#9997;&#65039;</span>
             <span class="row-name">SCHRIJVEN</span>
@@ -131,7 +202,7 @@
           <div class="row-slots" id="row-schrijven"></div>
         </div>
 
-        <div class="board-row" data-row="spreken">
+        <div class="board-row row-spreken" data-row="spreken">
           <div class="row-header">
             <span class="row-icon">&#128483;&#65039;</span>
             <span class="row-name">SPREKEN</span>
@@ -142,11 +213,16 @@
         </div>
       </main>
 
-      <!-- RIGHT: Hand -->
+      <!-- RIGHT: Hand + Scoreboard -->
       <aside id="right-panel">
         <div class="panel-box" id="hand-panel">
           <h3>Je Hand <span id="hand-count">(0)</span></h3>
           <div id="hand-cards" class="hand-column"></div>
+        </div>
+        <!-- Multiplayer scoreboard -->
+        <div class="panel-box hidden" id="scoreboard-panel">
+          <h3>Scores</h3>
+          <div id="scoreboard"></div>
         </div>
       </aside>
     </div>
@@ -198,8 +274,10 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
   <script src="cards.js"></script>
   <script src="game.js"></script>
+  <script src="network.js"></script>
   <script src="ui.js"></script>
 </body>
 </html>
