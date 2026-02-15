@@ -187,24 +187,37 @@ h1, h2, h3 { font-family: 'Merriweather', Georgia, serif; }
 }
 .idea-selector .idea-symbol { font-size: 22px; }
 .idea-selector .idea-name { font-size: 13px; color: var(--text-dim); min-width: 80px; font-weight: 500; }
-.idea-selector button {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  border: none;
+/* Idea toggle button (setup) */
+.idea-toggle {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 2px solid #e0d8c8;
   cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  transition: transform 0.1s;
-}
-.idea-selector button:hover { transform: scale(1.1); }
-.idea-selector .idea-minus { background: var(--accent); }
-.idea-selector .idea-plus { background: var(--green); }
-.idea-selector .idea-count {
-  font-size: 20px;
+  font-size: 12px;
   font-weight: 700;
-  min-width: 24px;
-  text-align: center;
+  transition: all 0.2s;
+  background: white;
+  color: var(--text-dim);
+  font-family: 'Inter', sans-serif;
+}
+.idea-toggle:hover { border-color: var(--gold); }
+.idea-selector.kept .idea-toggle {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+.idea-selector.discarded .idea-toggle {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.idea-selector.kept {
+  border-color: var(--green-light);
+  background: #f0fdf4;
+}
+.idea-selector.discarded {
+  opacity: 0.6;
+  border-style: dashed;
 }
 
 .setup-cards { margin-bottom: 24px; }
@@ -585,6 +598,19 @@ h1, h2, h3 { font-family: 'Merriweather', Georgia, serif; }
 }
 .card-mini .card-books-info { color: var(--text-light); font-weight: 500; }
 .card-mini .card-invloed { color: var(--text-light); }
+.card-mini .card-stroming {
+  font-size: 10px;
+  color: var(--gold);
+  font-style: italic;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.book-cap-icon {
+  font-size: 11px;
+  line-height: 1;
+}
 
 /* Traditie mini badge on card */
 .traditie-mini {

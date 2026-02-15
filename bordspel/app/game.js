@@ -47,32 +47,33 @@ const ROW_TO_SKILL = { 'lezen': 'L', 'schrijven': 'S', 'spreken': 'Sp' };
 
 // ============================================================
 // Row benefits - matches Wingspan exactly
+// Conversion bonus at columns 3 and 5 (after 3 and 5 philosophers)
 // ============================================================
 const LEZEN_BENEFITS = [
-  { ideas: 1, conversion: false },
-  { ideas: 1, conversion: true },
-  { ideas: 2, conversion: false },
-  { ideas: 2, conversion: true },
-  { ideas: 3, conversion: false },
-  { ideas: 3, conversion: true }
+  { ideas: 1, conversion: false },  // 0 philosophers
+  { ideas: 1, conversion: false },  // 1 philosopher
+  { ideas: 2, conversion: false },  // 2 philosophers
+  { ideas: 2, conversion: true },   // 3 philosophers + conversion
+  { ideas: 3, conversion: false },  // 4 philosophers
+  { ideas: 3, conversion: true }    // 5 philosophers + conversion
 ];
 
 const SCHRIJVEN_BENEFITS = [
-  { books: 2, conversion: false },
-  { books: 2, conversion: true },
-  { books: 3, conversion: false },
-  { books: 3, conversion: true },
-  { books: 4, conversion: false },
-  { books: 4, conversion: true }
+  { books: 2, conversion: false },  // 0 philosophers
+  { books: 2, conversion: false },  // 1 philosopher
+  { books: 3, conversion: false },  // 2 philosophers
+  { books: 3, conversion: true },   // 3 philosophers + conversion
+  { books: 4, conversion: false },  // 4 philosophers
+  { books: 4, conversion: true }    // 5 philosophers + conversion
 ];
 
 const SPREKEN_BENEFITS = [
-  { cards: 1, conversion: false },
-  { cards: 1, conversion: true },
-  { cards: 2, conversion: false },
-  { cards: 2, conversion: true },
-  { cards: 3, conversion: false },
-  { cards: 3, conversion: true }
+  { cards: 1, conversion: false },  // 0 philosophers
+  { cards: 1, conversion: false },  // 1 philosopher
+  { cards: 2, conversion: false },  // 2 philosophers
+  { cards: 2, conversion: true },   // 3 philosophers + conversion
+  { cards: 3, conversion: false },  // 4 philosophers
+  { cards: 3, conversion: true }    // 5 philosophers + conversion
 ];
 
 // ============================================================
@@ -175,9 +176,9 @@ const Game = {
       }
       startCardsPerPlayer[id] = cards;
 
-      // Pick 4 levenswerk options per player (unique)
+      // Pick 2 levenswerk options per player (like Wingspan: 2 bonus cards, keep 1)
       const shuffledLW = shuffle([...ALL_LEVENSWERK]);
-      this.levenswerkOptions[id] = shuffledLW.slice(0, 4);
+      this.levenswerkOptions[id] = shuffledLW.slice(0, 2);
     }
 
     return startCardsPerPlayer;
@@ -294,11 +295,24 @@ const Game = {
     if (!card.vaardigheden.includes(skill)) return false;
     if (p.board[row].length >= 5) return false;
 
+    // Check idea costs with 2:1 trade rule
+    // Player can pay 2 of any idea type as 1 of a needed type
     const costCount = {};
     for (const c of card.kosten) costCount[c] = (costCount[c] || 0) + 1;
-    for (const [type, count] of Object.entries(costCount)) {
-      if (p.ideas[type] < count) return false;
+
+    let deficit = 0; // How many ideas we're short
+    let surplus = 0; // How many extra ideas we have
+    for (const type of IDEA_TYPES) {
+      const needed = costCount[type] || 0;
+      const have = p.ideas[type];
+      if (have < needed) {
+        deficit += (needed - have);
+      } else {
+        surplus += (have - needed);
+      }
     }
+    // 2:1 trade: each surplus 2 can cover 1 deficit
+    if (deficit > 0 && Math.floor(surplus / 2) < deficit) return false;
 
     const bookCost = this.getBookCostForColumn(row, playerId);
     if (bookCost > 0 && p.booksOnBoard < bookCost) return false;
@@ -309,10 +323,30 @@ const Game = {
     const pid = playerId || this.getCurrentPlayerId();
     const p = this.players[pid];
 
-    // Pay idea costs
-    for (const c of card.kosten) {
-      p.ideas[c]--;
-      this.addLog(`${p.name}: -1 ${IDEA_NAMES[c]}`, 'spend');
+    // Pay idea costs (with 2:1 trade rule)
+    const costCount = {};
+    for (const c of card.kosten) costCount[c] = (costCount[c] || 0) + 1;
+
+    for (const [type, needed] of Object.entries(costCount)) {
+      const have = p.ideas[type];
+      const direct = Math.min(have, needed);
+      // Pay directly what we can
+      for (let i = 0; i < direct; i++) {
+        p.ideas[type]--;
+        this.addLog(`${p.name}: -1 ${IDEA_NAMES[type]}`, 'spend');
+      }
+      // Pay remainder via 2:1 trade
+      const shortfall = needed - direct;
+      if (shortfall > 0) {
+        let remaining = shortfall;
+        for (const otherType of IDEA_TYPES) {
+          while (remaining > 0 && p.ideas[otherType] >= 2) {
+            p.ideas[otherType] -= 2;
+            remaining--;
+            this.addLog(`${p.name}: -2 ${IDEA_NAMES[otherType]} (→1 ${IDEA_NAMES[type]})`, 'spend');
+          }
+        }
+      }
     }
 
     // Pay book cost

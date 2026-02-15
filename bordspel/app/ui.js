@@ -9,7 +9,7 @@ const UI = {
   setupCards: [],
   setupSelected: [],
   setupIdeas: { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 },
-  setupPhase: 1,        // 1 = cards+ideas, 2 = levenswerk
+  // setupPhase removed - single-screen setup like Wingspan
   selectedLevenswerk: null,
 
   // Action state
@@ -56,11 +56,12 @@ const UI = {
     const startCardsMap = Game.init('single');
     this.setupCards = startCardsMap['local'] || [];
     this.setupSelected = [];
-    this.setupIdeas = { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 };
-    this.setupPhase = 1;
+    // Start with 1 of each idea type (like Wingspan: 1 of each food)
+    this.setupIdeas = { weegschaal: 1, oog: 1, spiegel: 1, passer: 1, sfeer: 1 };
     this.selectedLevenswerk = null;
-    document.getElementById('setup-levenswerk-section').style.display = 'none';
-    document.getElementById('setup-subtitle').textContent = 'Kies je startopstelling';
+    // Show levenswerk section immediately (1 screen, all choices)
+    document.getElementById('setup-levenswerk-section').style.display = '';
+    document.getElementById('setup-subtitle').textContent = 'Kies kaarten, ideeën en levenswerk (totaal kaarten + ideeën = 5)';
     document.getElementById('setup-waiting').classList.add('hidden');
     document.getElementById('btn-start-game').classList.remove('hidden');
     this.showScreen('setup');
@@ -235,8 +236,7 @@ const UI = {
         // Local host setup
         this.setupCards = startCardsMap[id] || [];
         this.setupSelected = [];
-        this.setupIdeas = { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 };
-        this.setupPhase = 1;
+        this.setupIdeas = { weegschaal: 1, oog: 1, spiegel: 1, passer: 1, sfeer: 1 };
         this.selectedLevenswerk = null;
       } else {
         // Send to client
@@ -252,8 +252,8 @@ const UI = {
     Network.broadcastState(Game.getState());
 
     // Show setup screen for host
-    document.getElementById('setup-levenswerk-section').style.display = 'none';
-    document.getElementById('setup-subtitle').textContent = 'Kies je startopstelling (multiplayer)';
+    document.getElementById('setup-levenswerk-section').style.display = '';
+    document.getElementById('setup-subtitle').textContent = 'Kies kaarten, ideeën en levenswerk (totaal = 5)';
     document.getElementById('setup-waiting').classList.add('hidden');
     document.getElementById('btn-start-game').classList.remove('hidden');
     this.showScreen('setup');
@@ -307,8 +307,7 @@ const UI = {
       // Reconstruct cards from ids
       this.setupCards = data.cards || [];
       this.setupSelected = [];
-      this.setupIdeas = { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 };
-      this.setupPhase = 1;
+      this.setupIdeas = { weegschaal: 1, oog: 1, spiegel: 1, passer: 1, sfeer: 1 };
       this.selectedLevenswerk = null;
 
       // Reconstruct levenswerk options
@@ -318,8 +317,8 @@ const UI = {
           .filter(Boolean);
       }
 
-      document.getElementById('setup-levenswerk-section').style.display = 'none';
-      document.getElementById('setup-subtitle').textContent = 'Kies je startopstelling (multiplayer)';
+      document.getElementById('setup-levenswerk-section').style.display = '';
+      document.getElementById('setup-subtitle').textContent = 'Kies kaarten, ideeën en levenswerk (totaal = 5)';
       document.getElementById('setup-waiting').classList.add('hidden');
       document.getElementById('btn-start-game').classList.remove('hidden');
       this.showScreen('setup');
@@ -423,6 +422,7 @@ const UI = {
   renderSetup() {
     this.renderSetupIdeas();
     this.renderSetupCards();
+    this.renderLevenswerk();
     this.updateSetupButton();
   },
 
@@ -431,13 +431,12 @@ const UI = {
     container.innerHTML = '';
     for (const type of IDEA_TYPES) {
       const div = document.createElement('div');
-      div.className = 'idea-selector';
+      const isKept = this.setupIdeas[type] > 0;
+      div.className = 'idea-selector' + (isKept ? ' kept' : ' discarded');
       div.innerHTML = `
         <span class="idea-symbol" style="color: var(--${type})">${IDEA_SYMBOLS[type]}</span>
         <span class="idea-name">${IDEA_NAMES[type]}</span>
-        <button class="idea-minus" data-type="${type}">-</button>
-        <span class="idea-count" id="setup-idea-${type}">${this.setupIdeas[type]}</span>
-        <button class="idea-plus" data-type="${type}">+</button>
+        <button class="idea-toggle" data-type="${type}">${isKept ? 'Houd' : 'Weg'}</button>
       `;
       container.appendChild(div);
     }
@@ -483,23 +482,16 @@ const UI = {
   updateSetupButton() {
     const btn = document.getElementById('btn-start-game');
     const total = this.getSetupTotal();
-    if (this.setupPhase === 1) {
-      btn.disabled = total !== 5;
-      btn.textContent = total === 5 ? 'Volgende: Kies Levenswerk' : `Nog ${5 - total} kiezen`;
+    const hasLevenswerk = !!this.selectedLevenswerk;
+    const ready = total === 5 && hasLevenswerk;
+    btn.disabled = !ready;
+    if (!hasLevenswerk && total === 5) {
+      btn.textContent = 'Kies nog een Levenswerk';
+    } else if (total !== 5) {
+      btn.textContent = `Nog ${5 - total} kaarten/ideeën kiezen`;
     } else {
-      btn.disabled = !this.selectedLevenswerk;
-      btn.textContent = this.selectedLevenswerk
-        ? (Game.mode === 'multi' ? 'Klaar!' : 'Start het Spel!')
-        : 'Kies een Levenswerk';
+      btn.textContent = Game.mode === 'multi' ? 'Klaar!' : 'Start het Spel!';
     }
-  },
-
-  goToLevenswerk() {
-    this.setupPhase = 2;
-    document.getElementById('setup-levenswerk-section').style.display = '';
-    this.renderLevenswerk();
-    this.updateSetupButton();
-    document.getElementById('setup-levenswerk-section').scrollIntoView({ behavior: 'smooth' });
   },
 
   renderLevenswerk() {
@@ -524,11 +516,6 @@ const UI = {
   },
 
   startGame() {
-    if (this.setupPhase === 1) {
-      this.goToLevenswerk();
-      return;
-    }
-
     const selectedCards = this.setupCards.filter(c => this.setupSelected.includes(c.id));
     const myId = Game.myId || 'local';
 
@@ -953,17 +940,22 @@ const UI = {
       ? `<span class="traditie-mini traditie-${card.traditie}" title="${TRADITIE_NAMES[card.traditie] || ''}">${TRADITIE_SYMBOLS[card.traditie] || ''}</span>`
       : '';
 
+    // Book capacity as visual icons
+    let bookIcons = '';
+    for (let i = 0; i < card.boek_capaciteit; i++) {
+      bookIcons += '<span class="book-cap-icon">📖</span>';
+    }
+
     div.innerHTML = `
       <span class="card-vp">${card.vp}</span>
       ${traditieBadge}
       <div class="card-skills">${skills}</div>
       <div class="card-name">${card.naam}</div>
-      <div class="card-dates">${this.formatDate(card.geboren)} - ${this.formatDate(card.overleden)}</div>
+      <div class="card-stroming">${card.stroming || ''}</div>
       <div class="card-costs">${costs || '<span style="color:var(--green);font-size:10px">Gratis</span>'}</div>
       <div class="card-power"><span class="power-dot ${card.kracht_type}"></span>${card.kracht}</div>
       <div class="card-bottom-row">
-        <span class="card-books-info">Cap: ${card.boek_capaciteit}</span>
-        ${card.invloed ? `<span class="card-invloed">Inv: ${card.invloed}</span>` : ''}
+        <span class="card-books-info">${bookIcons || '—'}</span>
       </div>
     `;
     return div;
@@ -1052,7 +1044,23 @@ const UI = {
       ? card.kosten.map(c => IDEA_SYMBOLS[c]).join(' ')
       : 'Gratis';
 
-    this.showActionBar(`<strong>${card.naam}</strong> aanstellen &mdash; Kosten: ${costText}. Klik op een lege plek in een rij.`);
+    // Check if 2:1 trade is needed
+    let tradeHint = '';
+    if (card.kosten.length > 0) {
+      const costCount = {};
+      for (const c of card.kosten) costCount[c] = (costCount[c] || 0) + 1;
+      let deficit = 0;
+      for (const type of IDEA_TYPES) {
+        const needed = costCount[type] || 0;
+        const have = myPlayer.ideas[type];
+        if (have < needed) deficit += (needed - have);
+      }
+      if (deficit > 0) {
+        tradeHint = ` <span style="color:var(--orange);font-size:12px">(2:1 ruil: ${deficit * 2} extra ideeën nodig)</span>`;
+      }
+    }
+
+    this.showActionBar(`<strong>${card.naam}</strong> aanstellen &mdash; Kosten: ${costText}${tradeHint}. Klik op een lege plek in een rij.`);
     this.renderBoard();
     this.renderHand();
   },
@@ -1639,17 +1647,16 @@ const UI = {
 
     // === SETUP ===
     document.getElementById('setup-idea-selectors').addEventListener('click', (e) => {
-      const btn = e.target;
+      const btn = e.target.closest('.idea-toggle');
+      if (!btn) return;
       const type = btn.dataset.type;
       if (!type) return;
-      if (this.setupPhase !== 1) return;
-      if (btn.classList.contains('idea-plus')) {
+      // Toggle: 1 → 0 or 0 → 1 (max 1 per type)
+      if (this.setupIdeas[type] > 0) {
+        this.setupIdeas[type] = 0;
+      } else {
         if (this.getSetupTotal() < 5) {
-          this.setupIdeas[type]++;
-        }
-      } else if (btn.classList.contains('idea-minus')) {
-        if (this.setupIdeas[type] > 0) {
-          this.setupIdeas[type]--;
+          this.setupIdeas[type] = 1;
         }
       }
       this.renderSetup();
@@ -1698,8 +1705,7 @@ const UI = {
       Network.destroy();
       this.setupCards = [];
       this.setupSelected = [];
-      this.setupIdeas = { weegschaal: 0, oog: 0, spiegel: 0, passer: 0, sfeer: 0 };
-      this.setupPhase = 1;
+      this.setupIdeas = { weegschaal: 1, oog: 1, spiegel: 1, passer: 1, sfeer: 1 };
       this.selectedLevenswerk = null;
       this.viewingPlayer = null;
       document.getElementById('setup-levenswerk-section').style.display = 'none';
