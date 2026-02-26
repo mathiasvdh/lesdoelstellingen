@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Academie - Feedback Formulier (Google Forms opzet)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@700;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f5f0e8; color: #2c1810; line-height: 1.6; }
+  .container { max-width: 750px; margin: 0 auto; padding: 24px; }
+  h1 { font-family: 'Merriweather', serif; font-size: 32px; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #7a6b5e; font-style: italic; margin-bottom: 8px; font-size: 15px; }
+  .intro { text-align: center; color: #7a6b5e; margin-bottom: 32px; font-size: 14px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  h2 { font-family: 'Merriweather', serif; font-size: 18px; color: #c8941e; margin: 28px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #f0d68a; }
+  .section-desc { color: #7a6b5e; font-size: 13px; margin-bottom: 16px; }
+  .question { background: white; border-radius: 10px; padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(44,24,16,0.06); border: 1px solid #e8e0d0; border-left: 4px solid #c8941e; }
+  .question.required { border-left-color: #d64045; }
+  .q-label { font-weight: 700; margin-bottom: 6px; font-size: 15px; }
+  .q-label .req { color: #d64045; }
+  .q-type { font-size: 11px; color: #a89882; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .q-hint { font-size: 13px; color: #7a6b5e; margin-bottom: 8px; }
+  .options { padding-left: 4px; }
+  .options label { display: block; padding: 4px 0; font-size: 14px; cursor: pointer; }
+  .options input[type="radio"], .options input[type="checkbox"] { margin-right: 8px; accent-color: #c8941e; }
+  .scale-row { display: flex; align-items: center; gap: 0; margin: 8px 0; }
+  .scale-row .label-left, .scale-row .label-right { font-size: 12px; color: #7a6b5e; min-width: 80px; }
+  .scale-row .label-right { text-align: right; }
+  .scale-options { display: flex; gap: 0; flex: 1; justify-content: space-between; }
+  .scale-options label { display: flex; flex-direction: column; align-items: center; font-size: 13px; color: #2c1810; padding: 4px 8px; cursor: pointer; }
+  textarea, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #e0d8c8; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 14px; resize: vertical; background: #faf7f0; }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: #c8941e; background: white; }
+  .note { background: #dbeafe; border-left: 4px solid #3a7bd5; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 13px; }
+  .note strong { color: #1e40af; }
+  .forms-instructions { background: #f0fdf4; border: 2px solid #2a9d5c; border-radius: 12px; padding: 20px; margin-bottom: 28px; }
+  .forms-instructions h3 { color: #2a9d5c; margin-bottom: 8px; font-size: 16px; }
+  .forms-instructions ol { padding-left: 20px; font-size: 14px; }
+  .forms-instructions li { margin-bottom: 4px; }
+  .divider { border: none; border-top: 2px dashed #e8e0d0; margin: 20px 0; }
+  @media print {
+    body { background: white; font-size: 12px; }
+    .question { box-shadow: none; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>De Academie - Playtest Feedback</h1>
+<p class="subtitle">Filosofisch bordspel - Feedbackformulier</p>
+<p class="intro">Bedankt voor het spelen! Vul dit formulier zo eerlijk mogelijk in. Er zijn geen foute antwoorden - jouw mening helpt het spel beter te maken.</p>
+
+<div class="forms-instructions">
+  <h3>Google Forms aanmaken</h3>
+  <ol>
+    <li>Ga naar <strong>forms.google.com</strong> &rarr; "Nieuw formulier"</li>
+    <li>Kopieer de titel: <em>"De Academie - Playtest Feedback"</em></li>
+    <li>Neem elke vraag hieronder over. Het type staat boven elke vraag (schaal, meerkeuze, open, etc.)</li>
+    <li>Voeg <strong>secties</strong> toe bij elke h2-kop</li>
+    <li>Zet vragen met <span style="color:#d64045">*</span> op <strong>verplicht</strong></li>
+  </ol>
+</div>
+
+<!-- ===================== SECTIE 1 ===================== -->
+<h2>Sectie 1: Algemeen</h2>
+<p class="section-desc">Basisinformatie over jouw speelervaring.</p>
+
+<div class="question required">
+  <div class="q-type">Korte tekst - verplicht</div>
+  <div class="q-label">Naam (of bijnaam) <span class="req">*</span></div>
+  <input type="text" placeholder="Je antwoord...">
+</div>
+
+<div class="question required">
+  <div class="q-type">Meerkeuze - verplicht</div>
+  <div class="q-label">Hoe heb je gespeeld? <span class="req">*</span></div>
+  <div class="options">
+    <label><input type="radio" name="mode"> Solo (alleen)</label>
+    <label><input type="radio" name="mode"> Multiplayer (met 2 spelers)</label>
+    <label><input type="radio" name="mode"> Multiplayer (met 3 spelers)</label>
+    <label><input type="radio" name="mode"> Multiplayer (met 4 spelers)</label>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Meerkeuze - verplicht</div>
+  <div class="q-label">Heb je het spel helemaal uitgespeeld? <span class="req">*</span></div>
+  <div class="options">
+    <label><input type="radio" name="finished"> Ja, alle 4 de rondes</label>
+    <label><input type="radio" name="finished"> Nee, gestopt na ronde 1 of 2</label>
+    <label><input type="radio" name="finished"> Nee, gestopt na ronde 3</label>
+    <label><input type="radio" name="finished"> Nee, het spel crashte/werkte niet</label>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 2 ===================== -->
+<h2>Sectie 2: Eerste indruk &amp; duidelijkheid</h2>
+<p class="section-desc">Hoe was je eerste ervaring met het spel?</p>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe makkelijk was het om te begrijpen wat je moest doen? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Heel moeilijk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_begrijpen" value="1"> 1</label>
+      <label><input type="radio" name="q_begrijpen" value="2"> 2</label>
+      <label><input type="radio" name="q_begrijpen" value="3"> 3</label>
+      <label><input type="radio" name="q_begrijpen" value="4"> 4</label>
+      <label><input type="radio" name="q_begrijpen" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel makkelijk</span>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe duidelijk was het setup-scherm (kaarten + idee&euml;n kiezen)? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Heel onduidelijk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_setup" value="1"> 1</label>
+      <label><input type="radio" name="q_setup" value="2"> 2</label>
+      <label><input type="radio" name="q_setup" value="3"> 3</label>
+      <label><input type="radio" name="q_setup" value="4"> 4</label>
+      <label><input type="radio" name="q_setup" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel duidelijk</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Was er iets dat je niet begreep of waar je lang over moest nadenken?</div>
+  <div class="q-hint">Bijv. een knop, een symbool, een regel, een kracht...</div>
+  <textarea rows="3" placeholder="Je antwoord..."></textarea>
+</div>
+
+<!-- ===================== SECTIE 3 ===================== -->
+<h2>Sectie 3: Gameplay &amp; spelplezier</h2>
+<p class="section-desc">Hoe voelde het spel aan tijdens het spelen?</p>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe leuk vond je het spel? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Niet leuk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_leuk" value="1"> 1</label>
+      <label><input type="radio" name="q_leuk" value="2"> 2</label>
+      <label><input type="radio" name="q_leuk" value="3"> 3</label>
+      <label><input type="radio" name="q_leuk" value="4"> 4</label>
+      <label><input type="radio" name="q_leuk" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel leuk</span>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe goed was de balans? (Voelde het eerlijk / niet te makkelijk of moeilijk?) <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Heel ongebalanceerd</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_balans" value="1"> 1</label>
+      <label><input type="radio" name="q_balans" value="2"> 2</label>
+      <label><input type="radio" name="q_balans" value="3"> 3</label>
+      <label><input type="radio" name="q_balans" value="4"> 4</label>
+      <label><input type="radio" name="q_balans" value="5"> 5</label>
+    </div>
+    <span class="label-right">Perfect gebalanceerd</span>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Had je het gevoel dat je keuzes maakten die er toe deden? (strategisch?) <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Geen strategie</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_strategie" value="1"> 1</label>
+      <label><input type="radio" name="q_strategie" value="2"> 2</label>
+      <label><input type="radio" name="q_strategie" value="3"> 3</label>
+      <label><input type="radio" name="q_strategie" value="4"> 4</label>
+      <label><input type="radio" name="q_strategie" value="5"> 5</label>
+    </div>
+    <span class="label-right">Veel strategie</span>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe was het tempo? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Te traag / saai</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_tempo" value="1"> 1</label>
+      <label><input type="radio" name="q_tempo" value="2"> 2</label>
+      <label><input type="radio" name="q_tempo" value="3"> 3</label>
+      <label><input type="radio" name="q_tempo" value="4"> 4</label>
+      <label><input type="radio" name="q_tempo" value="5"> 5</label>
+    </div>
+    <span class="label-right">Te snel / stressvol</span>
+  </div>
+  <div class="q-hint">3 = precies goed</div>
+</div>
+
+<div class="question">
+  <div class="q-type">Selectievakjes (meerdere antwoorden mogelijk)</div>
+  <div class="q-label">Welke actie vond je het leukst?</div>
+  <div class="options">
+    <label><input type="checkbox"> Filosoof plaatsen</label>
+    <label><input type="checkbox"> Lezen (idee&euml;n pakken)</label>
+    <label><input type="checkbox"> Schrijven (boeken plaatsen)</label>
+    <label><input type="checkbox"> Spreken (kaarten trekken)</label>
+    <label><input type="checkbox"> Geen van bovenstaande / weet niet</label>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Was er een moment dat je dacht "dit is cool!" of juist "dit is frustrerend"?</div>
+  <textarea rows="3" placeholder="Je antwoord..."></textarea>
+</div>
+
+<!-- ===================== SECTIE 4 ===================== -->
+<h2>Sectie 4: Kaarten &amp; krachten</h2>
+<p class="section-desc">Over de filosoofkaarten en hun speciale krachten.</p>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe duidelijk waren de krachten op de kaarten? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Heel onduidelijk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_krachten" value="1"> 1</label>
+      <label><input type="radio" name="q_krachten" value="2"> 2</label>
+      <label><input type="radio" name="q_krachten" value="3"> 3</label>
+      <label><input type="radio" name="q_krachten" value="4"> 4</label>
+      <label><input type="radio" name="q_krachten" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel duidelijk</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Lineaire schaal 1-5</div>
+  <div class="q-label">Hoe leuk vond je het filosofie-thema? (Filosoofnamen, stromingen, citaten)</div>
+  <div class="scale-row">
+    <span class="label-left">Niet leuk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_thema" value="1"> 1</label>
+      <label><input type="radio" name="q_thema" value="2"> 2</label>
+      <label><input type="radio" name="q_thema" value="3"> 3</label>
+      <label><input type="radio" name="q_thema" value="4"> 4</label>
+      <label><input type="radio" name="q_thema" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel leuk</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Waren er kaarten die je niet begreep of die te sterk/zwak leken?</div>
+  <div class="q-hint">Noem de naam van de filosoof als je die nog weet.</div>
+  <textarea rows="3" placeholder="Je antwoord..."></textarea>
+</div>
+
+<!-- ===================== SECTIE 5 ===================== -->
+<h2>Sectie 5: Uiterlijk &amp; interface</h2>
+<p class="section-desc">Over hoe het spel eruitziet en aanvoelt.</p>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe vond je het uiterlijk (kleuren, lettertype, layout)? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Lelijk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_uiterlijk" value="1"> 1</label>
+      <label><input type="radio" name="q_uiterlijk" value="2"> 2</label>
+      <label><input type="radio" name="q_uiterlijk" value="3"> 3</label>
+      <label><input type="radio" name="q_uiterlijk" value="4"> 4</label>
+      <label><input type="radio" name="q_uiterlijk" value="5"> 5</label>
+    </div>
+    <span class="label-right">Prachtig</span>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Hoe makkelijk was het om te vinden wat je nodig had op het scherm? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Heel moeilijk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_navigatie" value="1"> 1</label>
+      <label><input type="radio" name="q_navigatie" value="2"> 2</label>
+      <label><input type="radio" name="q_navigatie" value="3"> 3</label>
+      <label><input type="radio" name="q_navigatie" value="4"> 4</label>
+      <label><input type="radio" name="q_navigatie" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel makkelijk</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Was er iets op het scherm dat je miste, niet kon vinden, of dat je anders zou doen?</div>
+  <textarea rows="3" placeholder="Je antwoord..."></textarea>
+</div>
+
+<!-- ===================== SECTIE 6 ===================== -->
+<h2>Sectie 6: Bugs &amp; problemen</h2>
+<p class="section-desc">Heb je fouten of technische problemen gevonden?</p>
+
+<div class="question required">
+  <div class="q-type">Meerkeuze - verplicht</div>
+  <div class="q-label">Heb je bugs (fouten) gevonden tijdens het spelen? <span class="req">*</span></div>
+  <div class="options">
+    <label><input type="radio" name="bugs"> Nee, alles werkte goed</label>
+    <label><input type="radio" name="bugs"> Ja, kleine foutjes (maar ik kon doorspelen)</label>
+    <label><input type="radio" name="bugs"> Ja, serieuze bugs (ik kon niet verder)</label>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Beschrijf de bug(s) die je tegenkwam</div>
+  <div class="q-hint">Wat deed je? Wat gebeurde er? Wat had er moeten gebeuren?</div>
+  <textarea rows="4" placeholder="Bijv: Toen ik een filosoof wilde plaatsen in de Spreken-rij, gebeurde er niks..."></textarea>
+</div>
+
+<div class="question">
+  <div class="q-type">Selectievakjes (meerdere antwoorden mogelijk)</div>
+  <div class="q-label">Welke onderdelen werkten NIET goed? (als die er waren)</div>
+  <div class="options">
+    <label><input type="checkbox"> Multiplayer verbinding</label>
+    <label><input type="checkbox"> Filosoof plaatsen</label>
+    <label><input type="checkbox"> Idee&euml;n pakken (Lezen)</label>
+    <label><input type="checkbox"> Boeken plaatsen (Schrijven)</label>
+    <label><input type="checkbox"> Kaarten trekken (Spreken)</label>
+    <label><input type="checkbox"> Setup-scherm</label>
+    <label><input type="checkbox"> Krachten gingen niet af</label>
+    <label><input type="checkbox"> Scoring klopte niet</label>
+    <label><input type="checkbox"> Scherm was rommelig / paste niet</label>
+    <label><input type="checkbox"> Niets, alles werkte!</label>
+  </div>
+</div>
+
+<!-- ===================== SECTIE 7 ===================== -->
+<h2>Sectie 7: Multiplayer (alleen als je multiplayer speelde)</h2>
+<p class="section-desc">Sla deze sectie over als je solo speelde.</p>
+
+<div class="question">
+  <div class="q-type">Lineaire schaal 1-5</div>
+  <div class="q-label">Hoe goed werkte de multiplayer-verbinding?</div>
+  <div class="scale-row">
+    <span class="label-left">Heel slecht</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_multi" value="1"> 1</label>
+      <label><input type="radio" name="q_multi" value="2"> 2</label>
+      <label><input type="radio" name="q_multi" value="3"> 3</label>
+      <label><input type="radio" name="q_multi" value="4"> 4</label>
+      <label><input type="radio" name="q_multi" value="5"> 5</label>
+    </div>
+    <span class="label-right">Zonder problemen</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Lineaire schaal 1-5</div>
+  <div class="q-label">Was het duidelijk wanneer jij aan de beurt was?</div>
+  <div class="scale-row">
+    <span class="label-left">Heel onduidelijk</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_beurt" value="1"> 1</label>
+      <label><input type="radio" name="q_beurt" value="2"> 2</label>
+      <label><input type="radio" name="q_beurt" value="3"> 3</label>
+      <label><input type="radio" name="q_beurt" value="4"> 4</label>
+      <label><input type="radio" name="q_beurt" value="5"> 5</label>
+    </div>
+    <span class="label-right">Heel duidelijk</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Wat vond je van het wachten op andere spelers?</div>
+  <textarea rows="2" placeholder="Je antwoord..."></textarea>
+</div>
+
+<!-- ===================== SECTIE 8 ===================== -->
+<h2>Sectie 8: Educatieve waarde</h2>
+<p class="section-desc">Over wat je geleerd hebt over filosofie.</p>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-5 - verplicht</div>
+  <div class="q-label">Heb je iets geleerd over filosofen of filosofische stromingen door het spel? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Nee, niks</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_leren" value="1"> 1</label>
+      <label><input type="radio" name="q_leren" value="2"> 2</label>
+      <label><input type="radio" name="q_leren" value="3"> 3</label>
+      <label><input type="radio" name="q_leren" value="4"> 4</label>
+      <label><input type="radio" name="q_leren" value="5"> 5</label>
+    </div>
+    <span class="label-right">Ja, veel!</span>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Welke filosoof of stroming onthoud je van het spel?</div>
+  <textarea rows="2" placeholder="Je antwoord..."></textarea>
+</div>
+
+<!-- ===================== SECTIE 9 ===================== -->
+<h2>Sectie 9: Eindscore &amp; afsluiting</h2>
+
+<div class="question required">
+  <div class="q-type">Lineaire schaal 1-10 - verplicht</div>
+  <div class="q-label">Totaalscore: Hoe beoordeel je De Academie als geheel? <span class="req">*</span></div>
+  <div class="scale-row">
+    <span class="label-left">Slecht</span>
+    <div class="scale-options">
+      <label><input type="radio" name="q_totaal" value="1"> 1</label>
+      <label><input type="radio" name="q_totaal" value="2"> 2</label>
+      <label><input type="radio" name="q_totaal" value="3"> 3</label>
+      <label><input type="radio" name="q_totaal" value="4"> 4</label>
+      <label><input type="radio" name="q_totaal" value="5"> 5</label>
+      <label><input type="radio" name="q_totaal" value="6"> 6</label>
+      <label><input type="radio" name="q_totaal" value="7"> 7</label>
+      <label><input type="radio" name="q_totaal" value="8"> 8</label>
+      <label><input type="radio" name="q_totaal" value="9"> 9</label>
+      <label><input type="radio" name="q_totaal" value="10"> 10</label>
+    </div>
+    <span class="label-right">Geweldig</span>
+  </div>
+</div>
+
+<div class="question required">
+  <div class="q-type">Meerkeuze - verplicht</div>
+  <div class="q-label">Zou je het spel nog een keer willen spelen? <span class="req">*</span></div>
+  <div class="options">
+    <label><input type="radio" name="opnieuw"> Ja, zeker!</label>
+    <label><input type="radio" name="opnieuw"> Misschien, als het verbeterd wordt</label>
+    <label><input type="radio" name="opnieuw"> Nee, niet echt</label>
+  </div>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Wat is het BESTE aan het spel?</div>
+  <textarea rows="2" placeholder="Je antwoord..."></textarea>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Wat zou je als EERSTE veranderen?</div>
+  <textarea rows="2" placeholder="Je antwoord..."></textarea>
+</div>
+
+<div class="question">
+  <div class="q-type">Open tekst</div>
+  <div class="q-label">Overige opmerkingen of suggesties</div>
+  <div class="q-hint">Alles wat je nog kwijt wilt!</div>
+  <textarea rows="3" placeholder="Je antwoord..."></textarea>
+</div>
+
+<hr class="divider">
+
+<div class="note">
+  <strong>Overzicht van alle vragen voor Google Forms:</strong><br><br>
+  <strong>Sectie 1 - Algemeen (3 vragen):</strong> Naam, speelmodus, uitgespeeld?<br>
+  <strong>Sectie 2 - Eerste indruk (3 vragen):</strong> Begrijpelijkheid, setup-duidelijkheid, wat niet begrepen<br>
+  <strong>Sectie 3 - Gameplay (6 vragen):</strong> Plezier, balans, strategie, tempo, favoriete actie, hoogtepunt/frustratie<br>
+  <strong>Sectie 4 - Kaarten (3 vragen):</strong> Duidelijkheid krachten, thema, te sterke/zwakke kaarten<br>
+  <strong>Sectie 5 - Interface (3 vragen):</strong> Uiterlijk, navigatie, wat mist er<br>
+  <strong>Sectie 6 - Bugs (3 vragen):</strong> Bugs gevonden?, beschrijving, welke onderdelen<br>
+  <strong>Sectie 7 - Multiplayer (3 vragen):</strong> Verbinding, beurtindicatie, wachttijd<br>
+  <strong>Sectie 8 - Educatief (2 vragen):</strong> Iets geleerd?, welke filosoof onthouden<br>
+  <strong>Sectie 9 - Afsluiting (5 vragen):</strong> Totaalscore /10, opnieuw spelen?, beste, eerste verandering, overig<br><br>
+  <strong>Totaal: 31 vragen</strong> (13 verplicht, 18 optioneel) &mdash; invultijd: ~5 minuten
+</div>
+
+</div>
+</body>
+</html>
