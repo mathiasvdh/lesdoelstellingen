@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Academie - Speelhandleiding</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@700;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f5f0e8; color: #2c1810; line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 24px; }
+  h1 { font-family: 'Merriweather', serif; font-size: 36px; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #7a6b5e; font-style: italic; margin-bottom: 32px; font-size: 16px; }
+  h2 { font-family: 'Merriweather', serif; font-size: 20px; color: #c8941e; margin: 24px 0 12px; border-bottom: 2px solid #f0d68a; padding-bottom: 6px; }
+  h3 { font-size: 16px; margin: 16px 0 8px; color: #2c1810; }
+  .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(44,24,16,0.08); border: 1px solid #e8e0d0; }
+  .url-box { background: #fef9ee; border: 2px solid #c8941e; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px; }
+  .url-box a { font-size: 20px; font-weight: 700; color: #c8941e; text-decoration: none; word-break: break-all; }
+  .url-box a:hover { text-decoration: underline; }
+  .url-box p { font-size: 13px; color: #7a6b5e; margin-top: 4px; }
+  .step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+  .step-num { background: #c8941e; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+  .step-text { flex: 1; }
+  .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+  .icon-item { display: flex; align-items: center; gap: 8px; background: #faf7f0; padding: 6px 10px; border-radius: 6px; font-size: 14px; }
+  .icon-item .symbol { font-size: 20px; min-width: 28px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+  th { background: #fef9ee; color: #2c1810; font-weight: 700; text-align: left; padding: 8px 10px; border: 1px solid #e8e0d0; }
+  td { padding: 8px 10px; border: 1px solid #e8e0d0; }
+  .highlight { background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: 600; color: #065f46; }
+  .warn { background: #fef3cd; padding: 2px 6px; border-radius: 4px; font-weight: 600; color: #92710d; }
+  .tip { background: #dbeafe; border-left: 4px solid #3a7bd5; padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; }
+  .tip strong { color: #1e40af; }
+  .power-list { list-style: none; }
+  .power-list li { padding: 4px 0; font-size: 14px; }
+  .power-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .power-dot.bruin { background: #b45309; }
+  .power-dot.roze { background: #db2777; }
+  .power-dot.wit { background: #6366f1; }
+  .power-dot.groenblauw { background: #0891b2; }
+  .power-dot.geel { background: #ca8a04; }
+  .time-box { background: #f0fdf4; border: 2px solid #2a9d5c; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px; }
+  .time-box .time { font-size: 28px; font-weight: 900; color: #2a9d5c; font-family: 'Merriweather', serif; }
+  .time-box p { font-size: 13px; color: #7a6b5e; margin-top: 4px; }
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .cols-2, .icon-grid { grid-template-columns: 1fr; } }
+  @media print {
+    body { background: white; font-size: 12px; }
+    .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .url-box, .time-box { border-width: 1px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>De Academie</h1>
+<p class="subtitle">Een filosofisch bordspel - Speelhandleiding</p>
+
+<div class="url-box">
+  <a href="https://mathiasvdh.github.io/lesdoelstellingen/" target="_blank">mathiasvdh.github.io/lesdoelstellingen</a>
+  <p>Open deze link in Chrome of Edge op je laptop/computer</p>
+</div>
+
+<div class="time-box">
+  <div class="time">30 minuten</div>
+  <p>5 min uitleg + 20 min spelen + 5 min feedback invullen</p>
+</div>
+
+<!-- STARTEN -->
+<h2>1. Het spel starten</h2>
+
+<div class="card">
+  <h3>Solo spelen</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Klik op <strong>"Solo Spelen"</strong></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Je komt direct op het setup-scherm</div></div>
+</div>
+
+<div class="card">
+  <h3>Multiplayer (2-4 spelers)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Klik op <strong>"Multiplayer"</strong> en vul je naam in</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Host:</strong> Klik "Maak Spel" &rarr; je krijgt een 4-lettercode (bijv. <span class="warn">A2K9</span>)</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Andere spelers:</strong> Vul de code in en klik "Doe Mee"</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Als iedereen verbonden is, klikt de host op <strong>"Start Spel"</strong></div></div>
+  <div class="tip"><strong>Tip:</strong> Zorg dat alle spelers hetzelfde wifi-netwerk gebruiken voor de beste verbinding.</div>
+</div>
+
+<!-- SETUP -->
+<h2>2. Setup - Je startpakket kiezen</h2>
+
+<div class="card">
+  <p>Je krijgt <strong>5 filosoofkaarten</strong>, <strong>5 idee-tokens</strong> (1 van elk type) en <strong>2 Levenswerk-opties</strong>. Op 1 scherm kies je alles tegelijk:</p>
+
+  <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Idee&euml;n:</strong> Je start met 1 van elk type. Klik op "Houd" of "Weg" om idee&euml;n te houden of weg te doen.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Kaarten:</strong> Klik op filosoofkaarten om ze te selecteren (groen = gekozen).</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Totaal:</strong> Het totaal van kaarten + idee&euml;n moet precies <span class="highlight">5</span> zijn.</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Levenswerk:</strong> Kies 1 van de 2 persoonlijke einddoelen (bonuspunten aan het einde).</div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-text">Klik <strong>"Start het Spel!"</strong> als alles gekozen is.</div></div>
+
+  <div class="tip"><strong>Strategie:</strong> Meer kaarten = meer opties maar minder idee&euml;n om ze te betalen. Meer idee&euml;n = snel een filosoof plaatsen maar minder kaarten in je hand.</div>
+</div>
+
+<!-- SPELVERLOOP -->
+<h2>3. Hoe het spel werkt</h2>
+
+<div class="card">
+  <h3>Structuur</h3>
+  <table>
+    <tr><th>Ronde</th><th>Naam</th><th>Beurten</th></tr>
+    <tr><td>1</td><td>De Oudheid</td><td>8</td></tr>
+    <tr><td>2</td><td>De Middeleeuwen</td><td>7</td></tr>
+    <tr><td>3</td><td>De Verlichting</td><td>6</td></tr>
+    <tr><td>4</td><td>De Moderne Tijd</td><td>5</td></tr>
+  </table>
+  <p style="margin-top:8px">Elke beurt kies je <strong>1 van 4 acties</strong>. Na elke ronde wordt een rondedoel gescoord.</p>
+</div>
+
+<!-- ACTIES -->
+<h2>4. De 4 acties</h2>
+
+<div class="card">
+  <h3>A. Filosoof plaatsen (klik op een kaart in je hand)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Klik op een filosoofkaart in je hand (rechts)</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Gele vakken lichten op in de rijen waar de filosoof past (L/S/Sp)</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Klik op een geel vak om te plaatsen</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Betaal de kosten: idee-tokens + eventueel boeken (kolom-kosten: 0, 1, 1, 2, 2)</div></div>
+
+  <div class="tip"><strong>2:1 Ruil:</strong> Heb je niet het juiste type idee? Je mag 2 idee&euml;n van een ander type inleveren als 1 van het benodigde type!</div>
+</div>
+
+<div class="cols-2">
+  <div class="card">
+    <h3>B. Lezen (idee&euml;n pakken)</h3>
+    <p>Klik <strong>"LEZEN"</strong> &rarr; Kies idee&euml;n uit de Bibliotheek (de dobbelstenen links).</p>
+    <p style="margin-top:6px;font-size:13px">Hoe meer filosofen in de Lezen-rij, hoe meer idee&euml;n je pakt (1&rarr;3). Bij 3+ filosofen: bonus conversie.</p>
+  </div>
+  <div class="card">
+    <h3>C. Schrijven (boeken plaatsen)</h3>
+    <p>Klik <strong>"SCHRIJVEN"</strong> &rarr; Plaats boeken op je filosofen (klik op een filosoof met ruimte).</p>
+    <p style="margin-top:6px;font-size:13px">Hoe meer filosofen in de Schrijven-rij, hoe meer boeken (2&rarr;4). Bij 3+ filosofen: bonus conversie.</p>
+  </div>
+  <div class="card">
+    <h3>D. Spreken (kaarten trekken)</h3>
+    <p>Klik <strong>"SPREKEN"</strong> &rarr; Kies kaarten uit de open rij of trek blind van de stapel.</p>
+    <p style="margin-top:6px;font-size:13px">Hoe meer filosofen in de Spreken-rij, hoe meer kaarten (1&rarr;3). Bij 3+ filosofen: bonus conversie.</p>
+  </div>
+  <div class="card">
+    <h3>Conversie-bonus</h3>
+    <p>Bij <strong>3 of 5</strong> filosofen in een rij krijg je een extra ruil:</p>
+    <p style="font-size:13px">Lezen: kaart &rarr; idee<br>Schrijven: idee &rarr; boek<br>Spreken: boek &rarr; kaart</p>
+  </div>
+</div>
+
+<!-- RESOURCES -->
+<h2>5. Wat staat er op het scherm?</h2>
+
+<div class="card">
+  <h3>De 5 idee-types</h3>
+  <div class="icon-grid">
+    <div class="icon-item"><span class="symbol">&#9878;&#65039;</span> <strong>Ethiek</strong> (weegschaal)</div>
+    <div class="icon-item"><span class="symbol">&#128065;&#65039;</span> <strong>Waarneming</strong> (oog)</div>
+    <div class="icon-item"><span class="symbol">&#129695;</span> <strong>Identiteit</strong> (spiegel)</div>
+    <div class="icon-item"><span class="symbol">&#128208;</span> <strong>Logica</strong> (passer)</div>
+    <div class="icon-item"><span class="symbol">&infin;</span> <strong>Metafysica</strong> (sfeer)</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>De filosoofkaart - wat betekent alles?</h3>
+  <table>
+    <tr><td><strong>VP-getal</strong> (rechts boven, goud)</td><td>Victory Points - basiswaarde van de kaart</td></tr>
+    <tr><td><strong>Traditie-icoon</strong> (links boven)</td><td>Filosofische stroming: &#129496; &#128300; &#9876;&#65039; &#9878;&#65039; &#11088;</td></tr>
+    <tr><td><strong>Vaardigheden</strong> (L / S / Sp)</td><td>In welke rij de filosoof geplaatst kan worden</td></tr>
+    <tr><td><strong>Stroming</strong> (goud, cursief)</td><td>Historische periode (Oudheid, Middeleeuwen, etc.)</td></tr>
+    <tr><td><strong>Kosten</strong> (gekleurde cirkels)</td><td>Welke idee&euml;n je moet betalen</td></tr>
+    <tr><td><strong>Kracht</strong> (met gekleurde stip)</td><td>Speciale kracht (zie kleur voor wanneer)</td></tr>
+    <tr><td><strong>Boeken</strong> (&#128214; onderaan)</td><td>Hoeveel boeken er op de kaart passen</td></tr>
+  </table>
+</div>
+
+<!-- KRACHTEN -->
+<h2>6. Krachten (kleuren)</h2>
+
+<div class="card">
+  <ul class="power-list">
+    <li><span class="power-dot wit"></span> <strong>Wit (Bij Aanstelling):</strong> Gaat af zodra je de filosoof plaatst. Eenmalig.</li>
+    <li><span class="power-dot bruin"></span> <strong>Bruin (Tijdens de beurt):</strong> Gaat af telkens als je die rij activeert (Lezen/Schrijven/Spreken).</li>
+    <li><span class="power-dot roze"></span> <strong>Roze (Tijdgeest):</strong> Gaat af als een <em>tegenstander</em> een filosoof plaatst. (Alleen multiplayer)</li>
+    <li><span class="power-dot groenblauw"></span> <strong>Groenblauw (Einde ronde):</strong> Gaat af aan het einde van elke ronde.</li>
+    <li><span class="power-dot geel"></span> <strong>Geel (Einde spel):</strong> Geeft bonuspunten bij de eindtelling.</li>
+  </ul>
+</div>
+
+<!-- SCOREN -->
+<h2>7. Hoe scoor je punten?</h2>
+
+<div class="card">
+  <table>
+    <tr><th>Bron</th><th>Punten</th></tr>
+    <tr><td>Filosoof-VP</td><td>Het VP-getal op elke geplaatste filosoof</td></tr>
+    <tr><td>Boeken</td><td>1 punt per boek op het bord</td></tr>
+    <tr><td>Referenties</td><td>1 punt per referentie (opgeslagen kaart)</td></tr>
+    <tr><td>Opgeslagen idee&euml;n</td><td>1 punt per opgeslagen idee</td></tr>
+    <tr><td>Rondedoelen</td><td>Punten per ronde als je het doel haalt</td></tr>
+    <tr><td>Levenswerk</td><td>Bonuspunten als je je persoonlijk doel bereikt</td></tr>
+    <tr><td>Gele krachten</td><td>Extra VP van eindspel-krachten</td></tr>
+  </table>
+  <p style="margin-top:8px"><strong>Winnaar:</strong> Wie het meeste VP heeft aan het einde van ronde 4!</p>
+</div>
+
+<!-- TIPS -->
+<h2>8. Snelle tips</h2>
+
+<div class="card">
+  <ul style="list-style: disc; padding-left: 20px; font-size: 14px;">
+    <li>Klik op het <strong>?-knopje</strong> (rechts boven) voor het in-game helpvenster met alle details.</li>
+    <li>Klik op een kaart voor de <strong>volledige beschrijving</strong> (kracht, citaat, etc.).</li>
+    <li><strong>Strategie:</strong> Focus op 1-2 rijen om de conversie-bonus te ontgrendelen.</li>
+    <li><strong>Boeken zijn belangrijk:</strong> Je hebt ze nodig om filosofen in latere kolommen te plaatsen.</li>
+    <li>Let op je <strong>Levenswerk</strong> - plan je strategie eromheen voor bonuspunten.</li>
+    <li>Bruine krachten zijn het sterkst als ze <strong>vaak</strong> afgaan (= vroeg plaatsen in een rij).</li>
+    <li><strong>Annuleren:</strong> Klik "Annuleer" onderaan als je je actie wilt afbreken.</li>
+  </ul>
+</div>
+
+<p style="text-align:center;color:#7a6b5e;margin-top:24px;font-size:13px">Veel plezier met De Academie! Vergeet niet na het spelen de <strong>feedbackformulier</strong> in te vullen.</p>
+
+</div>
+</body>
+</html>
